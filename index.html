@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Inventori ATK</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --surface2: #F0EEE9;
+  --border: #E2DDD6;
+  --border2: #CCC8BF;
+  --text: #1A1916;
+  --text2: #6B6760;
+  --text3: #A09D97;
+  --accent: #2D6A4F;
+  --accent-bg: #E8F4EF;
+  --accent-text: #1B4332;
+  --amber: #92400E;
+  --amber-bg: #FEF3C7;
+  --red: #991B1B;
+  --red-bg: #FEE2E2;
+  --blue: #1E3A5F;
+  --blue-bg: #DBEAFE;
+  --purple: #4C1D95;
+  --purple-bg: #EDE9FE;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --r: 10px;
+  --r-lg: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+button { font-family: var(--font); cursor: pointer; }
+input, select, textarea { font-family: var(--font); }
+
+/* ── TOAST ── */
+#toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast-item { background: var(--text); color: #fff; padding: 10px 16px; border-radius: var(--r); font-size: 13px; font-weight: 500; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; max-width: 320px; }
+.toast-item.show { opacity: 1; transform: translateY(0); }
+.toast-item.success { background: var(--accent); }
+.toast-item.error { background: var(--red); }
+.toast-item.warning { background: #B45309; }
+
+/* ── LOGIN ── */
+#login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.login-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 40px; width: 360px; box-shadow: var(--shadow); }
+.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.login-logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.login-logo-icon svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.login-logo-text { font-size: 16px; font-weight: 700; color: var(--text); }
+.login-logo-sub { font-size: 12px; color: var(--text2); }
+.login-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--r); font-size: 14px; color: var(--text); background: var(--surface); transition: border-color 0.15s; outline: none; }
+.form-input:focus { border-color: var(--accent); }
+.form-select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--r); font-size: 14px; color: var(--text); background: var(--surface); outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6760' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
+.form-select:focus { border-color: var(--accent); }
+.btn-primary { width: 100%; padding: 10px; background: var(--accent); color: #fff; border: none; border-radius: var(--r); font-size: 14px; font-weight: 600; transition: opacity 0.15s; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── APP LAYOUT ── */
+#app { display: none; min-height: 100vh; }
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; }
+.sidebar-header { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); }
+.sidebar-logo { display: flex; align-items: center; gap: 8px; }
+.sidebar-logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sidebar-logo-icon svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; }
+.sidebar-logo-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.sidebar-logo-sub { font-size: 11px; color: var(--text3); }
+.sidebar-nav { flex: 1; padding: 10px 8px; overflow-y: auto; }
+.nav-section { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 8px 4px; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text2); transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+.nav-item svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; flex-shrink: 0; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--accent-bg); color: var(--accent-text); font-weight: 600; }
+.nav-item .badge-count { margin-left: auto; background: var(--amber-bg); color: var(--amber); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 99px; font-family: var(--mono); }
+.sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); }
+.user-info { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; }
+.user-avatar { width: 28px; height: 28px; background: var(--accent-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent-text); flex-shrink: 0; }
+.user-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.user-role { font-size: 11px; color: var(--text3); }
+.btn-logout { display: flex; align-items: center; gap: 6px; width: 100%; padding: 7px 10px; border: none; background: none; color: var(--text2); font-size: 12px; border-radius: 8px; cursor: pointer; margin-top: 4px; }
+.btn-logout:hover { background: var(--red-bg); color: var(--red); }
+.btn-logout svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+/* ── MAIN ── */
+.main { margin-left: 220px; min-height: 100vh; }
+.page-header { padding: 20px 24px 0; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--text); }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.page-content { padding: 16px 24px 32px; }
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── CARDS ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px 20px; box-shadow: var(--shadow); }
+.card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.card-title svg { width: 15px; height: 15px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; }
+
+/* ── METRIC CARDS ── */
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 16px 18px; box-shadow: var(--shadow); }
+.metric-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.metric-value { font-size: 28px; font-weight: 700; color: var(--text); font-family: var(--mono); line-height: 1; }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* ── TABLES ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+
+/* ── BADGES ── */
+.badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-pending  { background: var(--amber-bg); color: var(--amber); }
+.badge-approved { background: var(--accent-bg); color: var(--accent-text); }
+.badge-rejected { background: var(--red-bg); color: var(--red); }
+.badge-taken    { background: var(--blue-bg); color: var(--blue); }
+.badge-admin    { background: var(--purple-bg); color: var(--purple); }
+.badge-staff    { background: var(--surface2); color: var(--text2); }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.btn svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.btn:hover { background: var(--surface2); border-color: var(--border2); }
+.btn-sm { padding: 4px 9px; font-size: 11px; }
+.btn-green { background: var(--accent-bg); color: var(--accent-text); border-color: #A7D7BF; }
+.btn-green:hover { background: #C6E8D8; }
+.btn-red { background: var(--red-bg); color: var(--red); border-color: #FECACA; }
+.btn-red:hover { background: #FEE2E2; }
+.btn-blue { background: var(--blue-bg); color: var(--blue); border-color: #BFDBFE; }
+.btn-blue:hover { background: #BFDBFE; }
+.btn-solid { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-solid:hover { opacity: 0.9; }
+
+/* ── FORM ── */
+.form-row { margin-bottom: 14px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.form-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* ── GRID LAYOUTS ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ── STOK BAR ── */
+.stok-bar-wrap { width: 80px; height: 5px; background: var(--surface2); border-radius: 99px; overflow: hidden; display: inline-block; vertical-align: middle; }
+.stok-bar-fill { height: 100%; border-radius: 99px; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 40px 20px; color: var(--text3); }
+.empty svg { width: 40px; height: 40px; fill: none; stroke: var(--border2); stroke-width: 1.5; margin-bottom: 12px; }
+.empty p { font-size: 13px; }
+
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 500; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: var(--r-lg); padding: 24px; width: 460px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--text3); padding: 2px; }
+.modal-close:hover { color: var(--text); }
+.modal-close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+/* ── CHART BARS ── */
+.chart-container { display: flex; align-items: flex-end; gap: 8px; height: 100px; padding-top: 10px; }
+.chart-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.chart-bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--accent); min-height: 4px; transition: height 0.4s; }
+.chart-bar-label { font-size: 10px; color: var(--text3); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+.chart-bar-val { font-size: 10px; font-weight: 600; color: var(--text2); font-family: var(--mono); }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 2px; background: var(--surface2); padding: 3px; border-radius: 10px; margin-bottom: 16px; width: fit-content; }
+.tab { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text2); cursor: pointer; border: none; background: none; transition: all 0.15s; }
+.tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+/* ── SEARCH BAR ── */
+.search-wrap { position: relative; }
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; fill: none; stroke: var(--text3); stroke-width: 2; stroke-linecap: round; pointer-events: none; }
+.search-input { width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border); border-radius: var(--r); font-size: 13px; color: var(--text); background: var(--surface); outline: none; }
+.search-input:focus { border-color: var(--accent); }
+
+/* ── FILTER ROW ── */
+.filter-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.filter-row .form-select { width: auto; min-width: 130px; padding: 7px 28px 7px 10px; font-size: 12px; }
+
+/* ── CAMERA PERMISSION BANNER ── */
+.cam-notice { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; border-radius: var(--r); font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
+.cam-notice svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.cam-notice-info  { background: var(--blue-bg); color: var(--blue); border: 1px solid #BFDBFE; }
+.cam-notice-warn  { background: var(--amber-bg); color: var(--amber); border: 1px solid #FDE68A; }
+.cam-notice-error { background: var(--red-bg); color: var(--red); border: 1px solid #FECACA; }
+.cam-notice-ok    { background: var(--accent-bg); color: var(--accent-text); border: 1px solid #A7D7BF; }
+.cam-notice b { font-weight: 700; display: block; margin-bottom: 1px; }
+.cam-notice ol { margin: 4px 0 0 14px; }
+.cam-notice ol li { margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card" style="width:400px">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      </div>
+      <div>
+        <div class="login-logo-text">Inventori ATK</div>
+        <div class="login-logo-sub">Sistem Manajemen Alat Tulis Kantor</div>
+      </div>
+    </div>
+
+    <!-- MODE TABS -->
+    <div class="tabs" style="width:100%;margin-bottom:20px">
+      <button class="tab active" id="tab-barcode" onclick="switchLoginTab('barcode')" style="flex:1">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;display:inline;vertical-align:middle;margin-right:4px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h2v10H7zM11 7h1v10h-1zM14 7h3v10h-3z"/></svg>
+        Scan Barcode
+      </button>
+      <button class="tab" id="tab-manual" onclick="switchLoginTab('manual')" style="flex:1">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;display:inline;vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+        Manual
+      </button>
+    </div>
+
+    <!-- ── TAB BARCODE ── -->
+    <div id="login-tab-barcode">
+      <!-- CAMERA PERMISSION NOTICE -->
+      <div id="cam-notice-box"></div>
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:12px">
+        <video id="barcode-video" style="width:100%;border-radius:6px;display:none;max-height:200px;object-fit:cover"></video>
+
+        <!-- Placeholder: tombol besar izin kamera -->
+        <div id="barcode-placeholder">
+          <svg viewBox="0 0 24 24" style="width:44px;height:44px;fill:none;stroke:var(--border2);stroke-width:1.2;display:block;margin:10px auto 8px"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Izinkan Akses Kamera</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:14px">untuk scan barcode kartu karyawan</div>
+          <button id="btn-start-scan" onclick="startBarcodeScanner()" style="display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font)">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Izinkan & Aktifkan Kamera
+          </button>
+        </div>
+
+        <div id="barcode-scan-status" style="font-size:12px;color:var(--accent);font-weight:600;margin-top:6px;min-height:18px"></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+          <button class="btn btn-sm btn-red" id="btn-stop-scan" onclick="stopBarcodeScanner()" style="display:none">Hentikan</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text3)">atau input manual barcode</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <input class="form-input" id="inp-barcode-manual" placeholder="Ketik / tempel kode barcode lalu Enter..." onkeydown="if(event.key==='Enter')doLoginBarcode(this.value.trim())"/>
+      <div class="form-hint" style="margin-top:6px">Staff → langsung masuk &nbsp;|&nbsp; Admin → perlu konfirmasi password</div>
+    </div>
+
+    <!-- ── TAB MANUAL ── -->
+    <div id="login-tab-manual" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Divisi</label>
+        <select class="form-select" id="inp-divisi" onchange="onDivisiChange()">
+          <option value="">— Pilih divisi —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Staff</label>
+        <select class="form-select" id="inp-user-sel" onchange="onStaffChange()" disabled>
+          <option value="">— Pilih nama —</option>
+        </select>
+      </div>
+      <div id="login-admin-section" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Password Admin</label>
+          <input class="form-input" type="password" id="inp-pass-admin" placeholder="Password" onkeydown="if(event.key==='Enter')doLoginFinal()"/>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-login" onclick="doLoginFinal()" disabled>Masuk</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal konfirmasi password admin saat scan barcode -->
+<div class="modal-overlay" id="modal-admin-password">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-title">Konfirmasi Password Admin
+      <button class="modal-close" onclick="closeModal('modal-admin-password')"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px">Barcode terdeteksi. Masukkan password untuk masuk sebagai admin.</div>
+    <div class="form-row">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="admin-confirm-pass" placeholder="Password admin" onkeydown="if(event.key==='Enter')confirmAdminLogin()"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-admin-password')">Batal</button>
+      <button class="btn btn-solid" onclick="confirmAdminLogin()">Konfirmasi & Masuk</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        </div>
+        <div>
+          <div class="sidebar-logo-name">Inventori ATK</div>
+          <div class="sidebar-logo-sub" id="sidebar-kantor">Memuat...</div>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div>
+          <div class="user-name" id="user-name">-</div>
+          <div class="user-role" id="user-role">-</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Keluar
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="screen" id="screen-dashboard">
+      <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Ringkasan inventori bulan ini</div></div>
+      <div class="page-content">
+        <div class="metrics-grid" id="dash-metrics"></div>
+        <div class="two-col" style="margin-bottom:14px">
+          <div class="card">
+            <div class="card-title"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Penggunaan per divisi</div>
+            <div class="chart-container" id="dash-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>Stok hampir habis</div>
+            <div id="dash-stok"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Permintaan terbaru</div>
+          <div class="table-wrap" id="dash-tabel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERMINTAAN STAFF -->
+    <div class="screen" id="screen-request">
+      <div class="page-header"><div class="page-title">Ajukan Permintaan</div><div class="page-sub">Permintaan barang ATK baru (maks. 15 item)</div></div>
+      <div class="page-content">
+        <div class="card" style="overflow-x:auto">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div class="card-title" style="margin:0">Daftar Permintaan</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-sm" onclick="tambahBarisReq()">+ Tambah Baris</button>
+              <button class="btn-solid btn btn-sm" onclick="submitPermintaan()">
+                <svg viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+                Kirim Semua
+              </button>
+            </div>
+          </div>
+          <table id="req-table" style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:var(--surface2)">
+                <th style="padding:8px;text-align:left;white-space:nowrap">#</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Kategori</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Sub Kategori</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Barang</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Jumlah</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Satuan</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Tgl Pengajuan</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Keperluan</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap"></th>
+              </tr>
+            </thead>
+            <tbody id="req-rows"></tbody>
+          </table>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-title">Riwayat permintaan saya</div>
+          <div id="my-permintaan"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN: KELOLA PERMINTAAN -->
+    <div class="screen" id="screen-admin-req">
+      <div class="page-header"><div class="page-title">Kelola Permintaan</div><div class="page-sub">Proses permintaan masuk dari staff</div></div>
+      <div class="page-content">
+        <div class="filter-row">
+          <select class="form-select" id="filter-status" onchange="loadAdminReq()">
+            <option value="">Semua status</option>
+            <option value="Pending">Pending</option>
+            <option value="Disetujui">Disetujui</option>
+            <option value="Ditolak">Ditolak</option>
+            <option value="Diambil">Diambil</option>
+          </select>
+          <select class="form-select" id="filter-divisi-req" onchange="loadAdminReq()"><option value="">Semua divisi</option></select>
+        </div>
+        <div class="card"><div class="table-wrap" id="admin-req-table"></div></div>
+      </div>
+    </div>
+
+    <!-- ADMIN: BARANG MASUK -->
+    <div class="screen" id="screen-barang-masuk">
+      <div class="page-header"><div class="page-title">Barang Masuk</div><div class="page-sub">Input pengadaan dari vendor</div></div>
+      <div class="page-content">
+        <div class="two-col" style="align-items:start">
+          <div class="card" style="overflow-x:auto">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div class="card-title" style="margin:0">Input Barang Masuk</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-sm" onclick="tambahBarisBM()">+ Tambah Baris</button>
+                <button class="btn-solid btn btn-sm" onclick="submitBarangMasuk()">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                  Simpan Semua
+                </button>
+              </div>
+            </div>
+            <table id="bm-table-input" style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead>
+                <tr style="background:var(--surface2)">
+                  <th style="padding:8px;text-align:left;white-space:nowrap">#</th>
+                  <th style="padding:8px;text-align:left;white-space:nowrap">Vendor</th>
+                  <th style="padding:8px;text-align:left;white-space:nowrap">Tgl Masuk</th>
+                  <th style="padding:8px;text-align:left;white-space:nowrap">Barang</th>
+                  <th style="padding:8px;text-align:left;white-space:nowrap">Jumlah</th>
+                  <th style="padding:8px;text-align:left;white-space:nowrap">Harga Satuan</th>
+                  <th style="padding:8px;text-align:left;white-space:nowrap">No. Faktur</th>
+                  <th style="padding:8px;text-align:left;white-space:nowrap">Total</th>
+                  <th style="padding:8px;text-align:left;white-space:nowrap"></th>
+                </tr>
+              </thead>
+              <tbody id="bm-rows"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-title">Riwayat barang masuk</div>
+            <div class="filter-row" style="margin-bottom:10px">
+              <select class="form-select" id="bm-filter-bulan" onchange="loadBarangMasuk()">
+                <option value="">Semua bulan</option>
+                <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+              </select>
+            </div>
+            <div class="table-wrap" id="bm-table"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STOK & MASTER BARANG -->
+    <div class="screen" id="screen-stok">
+      <div class="page-header"><div class="page-title">Stok & Master Barang</div><div class="page-sub">Kelola data barang ATK</div></div>
+      <div class="page-content">
+        <div class="filter-row">
+          <div class="search-wrap" style="flex:1;max-width:280px">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input class="search-input" id="stok-search" placeholder="Cari nama barang..." oninput="renderStok()"/>
+          </div>
+          <select class="form-select" id="stok-filter-kat" onchange="renderStok()"><option value="">Semua kategori</option></select>
+          <button class="btn btn-solid btn-sm" id="btn-tambah-barang" onclick="openModalTambahBarang()">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Tambah Barang
+          </button>
+        </div>
+        <div class="card"><div class="table-wrap" id="stok-table"></div></div>
+      </div>
+    </div>
+
+    <!-- LAPORAN -->
+    <div class="screen" id="screen-laporan">
+      <div class="page-header"><div class="page-title">Laporan</div><div class="page-sub">Rekap penggunaan & pengadaan</div></div>
+      <div class="page-content">
+        <div class="tabs" id="laporan-tabs">
+          <button class="tab active" onclick="switchLaporan('keluar',this)">Barang Keluar</button>
+          <button class="tab" onclick="switchLaporan('masuk',this)">Barang Masuk</button>
+          <button class="tab" onclick="switchLaporan('divisi',this)">Per Divisi</button>
+        </div>
+        <div class="filter-row">
+          <select class="form-select" id="lap-bulan">
+            <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+            <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+            <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+            <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+          </select>
+          <select class="form-select" id="lap-tahun"></select>
+          <button class="btn" onclick="loadLaporan()">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M1 4v6h6M23 20v-6h-6M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+            Tampilkan
+          </button>
+        </div>
+        <div class="card" id="laporan-content"></div>
+      </div>
+    </div>
+
+    <!-- ADMIN: MASTER DATA -->
+    <div class="screen" id="screen-master">
+      <div class="page-header"><div class="page-title">Master Data</div><div class="page-sub">Kelola staff, divisi, dan vendor</div></div>
+      <div class="page-content">
+        <div class="tabs" id="master-tabs">
+          <button class="tab active" onclick="switchMaster('staff',this)">Staff</button>
+          <button class="tab" onclick="switchMaster('vendor',this)">Vendor</button>
+          <button class="tab" onclick="switchMaster('kategori',this)">Kategori</button>
+        </div>
+        <div id="master-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL APPROVAL -->
+<div class="modal-overlay" id="modal-approval">
+  <div class="modal">
+    <div class="modal-title">Proses Permintaan <button class="modal-close" onclick="closeModal('modal-approval')"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div id="modal-approval-info" style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px;line-height:1.8"></div>
+    <div class="form-row">
+      <label class="form-label">Tanggal Approval</label>
+      <input class="form-input" type="date" id="modal-tgl-approval"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Catatan admin (opsional)</label>
+      <input class="form-input" id="modal-catatan" placeholder="Tambahkan catatan jika perlu..."/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-red" onclick="prosesReq('Ditolak')">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg> Tolak
+      </button>
+      <button class="btn btn-green" onclick="prosesReq('Disetujui')">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Setujui
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH BARANG -->
+<div class="modal-overlay" id="modal-tambah-barang">
+  <div class="modal">
+    <div class="modal-title">Tambah Barang Baru <button class="modal-close" onclick="closeModal('modal-tambah-barang')"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="form-row">
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="tb-kat" onchange="loadSubKatModal()"><option value="">— Pilih —</option></select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Sub Kategori</label>
+      <select class="form-select" id="tb-subkat"><option value="">— Pilih —</option></select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Nama Barang</label>
+      <input class="form-input" id="tb-nama" placeholder="cth: HVS A4 Putih 70gr"/>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label class="form-label">Satuan</label>
+        <input class="form-input" id="tb-satuan" placeholder="Rim / Pcs / Box"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Stok minimum</label>
+        <input class="form-input" type="number" id="tb-min" placeholder="5"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Harga satuan (Rp)</label>
+      <input class="form-input" type="number" id="tb-harga" placeholder="0"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-tambah-barang')">Batal</button>
+      <button class="btn btn-solid" onclick="submitTambahBarang()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH STAFF -->
+<div class="modal-overlay" id="modal-tambah-staff">
+  <div class="modal">
+    <div class="modal-title">Tambah Staff <button class="modal-close" onclick="closeModal('modal-tambah-staff')"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="form-row">
+      <label class="form-label">Nama lengkap</label>
+      <input class="form-input" id="ns-nama" placeholder="Nama staff (harus sama persis dengan List Karyawan)"/>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label class="form-label">Nomor WA</label>
+        <input class="form-input" id="ns-wa" placeholder="6281234567890"/>
+        <div class="form-hint">Format: 628xxx</div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Divisi</label>
+        <select class="form-select" id="ns-divisi"><option value="">— Pilih —</option></select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label class="form-label">Role</label>
+        <select class="form-select" id="ns-role">
+          <option value="staff">Staff</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="ns-aktif">
+          <option value="1">Aktif</option>
+          <option value="0">Nonaktif</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="ns-pass" placeholder="Password login (wajib untuk admin)"/>
+      <div class="form-hint">Staff biasa: bisa diisi sembarang, login pakai barcode/QR</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-tambah-staff')">Batal</button>
+      <button class="btn btn-solid" onclick="submitTambahStaff()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH VENDOR -->
+<div class="modal-overlay" id="modal-tambah-vendor">
+  <div class="modal">
+    <div class="modal-title">Tambah Vendor <button class="modal-close" onclick="closeModal('modal-tambah-vendor')"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="form-row">
+      <label class="form-label">Nama vendor</label>
+      <input class="form-input" id="nv-nama" placeholder="Nama toko/perusahaan"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Kontak</label>
+      <input class="form-input" id="nv-kontak" placeholder="Nomor telepon / WA"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Alamat</label>
+      <input class="form-input" id="nv-alamat" placeholder="Alamat vendor"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-tambah-vendor')">Batal</button>
+      <button class="btn btn-solid" onclick="submitTambahVendor()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH KATEGORI -->
+<div class="modal-overlay" id="modal-tambah-kategori">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-title">Tambah Kategori <button class="modal-close" onclick="closeModal('modal-tambah-kategori')"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="form-row">
+      <label class="form-label">Nama Kategori</label>
+      <input class="form-input" id="mk-nama" placeholder="cth: Alat Tulis"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-tambah-kategori')">Batal</button>
+      <button class="btn btn-solid" onclick="submitTambahKategori()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH SUB KATEGORI -->
+<div class="modal-overlay" id="modal-tambah-subkategori">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-title">Tambah Sub Kategori <button class="modal-close" onclick="closeModal('modal-tambah-subkategori')"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="form-row">
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="msk-kat"><option value="">— Pilih —</option></select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Nama Sub Kategori</label>
+      <input class="form-input" id="msk-nama" placeholder="cth: Pensil & Pulpen"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-tambah-subkategori')">Batal</button>
+      <button class="btn btn-solid" onclick="submitTambahSubKategori()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+if (window.self !== window.top) {
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tampilkan banner di atas halaman
+    var banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#2D6A4F;color:#fff;text-align:center;padding:12px;font-size:14px;font-weight:600;z-index:99999';
+    banner.innerHTML = '⚠️ Kamera tidak bisa diakses di sini. <a href="' + window.location.href + '" target="_blank" style="color:#fff;text-decoration:underline">Buka di tab baru</a>';
+    document.body.appendChild(banner);
+  });
+}
+// ── CONFIG ──────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxGEWgp1yrObm_rsn6VOx-B636c3ICRuU0gGcw9zQ0lMJ9i-ZOroO_mIYLcZzE2ofVzFQ/exec';
+
+// ── STATE ────────────────────────────────────────────────────
+let STATE = {
+  user: null,
+  kategori: [], subkategori: [], barang: [], divisi: [], vendor: [], staff: [],
+  currentApprovalId: null,
+  laporanTipe: 'keluar',
+  masterTipe: 'staff',
+};
+
+// ── API ──────────────────────────────────────────────────────
+async function api(aksi, data = {}) {
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ aksi, data }),
+  });
+  return res.json();
+}
+
+// ── INIT LOGIN DATA ──────────────────────────────────────────
+(async function initLoginData() {
+  try {
+    const [rDiv, rStaff] = await Promise.all([api('getDivisi'), api('getAllStaff')]);
+    STATE.divisi = rDiv || [];
+    STATE.staff  = rStaff || [];
+    const sel = document.getElementById('inp-divisi');
+    if (sel) {
+      sel.innerHTML = '<option value="">— Pilih divisi —</option>';
+      STATE.divisi.forEach(d => sel.innerHTML += `<option value="${d.ID_Divisi}">${d.NamaDivisi}</option>`);
+    }
+  } catch(e) {}
+})();
+
+// ── TOAST ────────────────────────────────────────────────────
+function toast(msg, type = '') {
+  const wrap = document.getElementById('toast');
+  const el = document.createElement('div');
+  el.className = 'toast-item ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+// ── FORMAT ───────────────────────────────────────────────────
+function fTgl(d) {
+  if (!d) return '-';
+  return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+}
+function fRp(n) {
+  return 'Rp ' + Number(n||0).toLocaleString('id-ID');
+}
+function statusBadge(s) {
+  const map = { Pending:'badge-pending', Disetujui:'badge-approved', Ditolak:'badge-rejected', Diambil:'badge-taken' };
+  return `<span class="badge ${map[s]||''}">${s||'-'}</span>`;
+}
+function initials(name) {
+  return (name||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+// ── AUTH ─────────────────────────────────────────────────────
+let LOGIN_STATE = { barcodeStream: null, scanInterval: null, pendingAdminData: null };
+
+function switchLoginTab(tab) {
+  document.getElementById('login-tab-barcode').style.display = tab === 'barcode' ? 'block' : 'none';
+  document.getElementById('login-tab-manual').style.display  = tab === 'manual'  ? 'block' : 'none';
+  document.getElementById('tab-barcode').classList.toggle('active', tab === 'barcode');
+  document.getElementById('tab-manual').classList.toggle('active', tab === 'manual');
+  if (tab !== 'barcode') stopBarcodeScanner();
+}
+
+// ── CAMERA NOTICE HELPER ──────────────────────────────────────
+function setCamNotice(type, html) {
+  const box = document.getElementById('cam-notice-box');
+  if (!box) return;
+  if (!type) { box.innerHTML = ''; return; }
+  const icons = {
+    warn:  '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+    error: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  };
+  const cls = { warn:'cam-notice-warn', error:'cam-notice-error' };
+  box.innerHTML = `<div class="cam-notice ${cls[type]}">${icons[type]}<div>${html}</div></div>`;
+}
+
+function showCameraBlockedNotice() {
+  const ua = navigator.userAgent;
+  const isChrome = ua.includes('Chrome') && !ua.includes('Edg');
+  const isEdge   = ua.includes('Edg');
+  const isFF     = ua.includes('Firefox');
+  let steps = '';
+  if (isChrome || isEdge) {
+    steps = '<ol><li>Klik ikon 🔒 atau ⓘ di kiri address bar</li><li>Pilih <b>Izin situs</b></li><li>Ubah <b>Kamera</b> → <b>Izinkan</b></li><li>Muat ulang halaman</li></ol>';
+  } else if (isFF) {
+    steps = '<ol><li>Klik ikon 🔒 di address bar</li><li>Klik <b>Hapus izin</b> di baris Kamera</li><li>Muat ulang halaman dan izinkan kembali</li></ol>';
+  } else {
+    steps = '<ol><li>Buka Pengaturan browser → Izin situs → Kamera</li><li>Temukan halaman ini dan ubah ke <b>Izinkan</b></li><li>Muat ulang halaman</li></ol>';
+  }
+  setCamNotice('error',
+    '<b>Akses kamera diblokir</b>Untuk mengaktifkan kembali:' + steps +
+    '<span style="opacity:0.8">Atau gunakan tab <b>Manual</b> untuk login tanpa kamera.</span>'
+  );
+  // Tampilkan tombol coba lagi
+  const bs = document.getElementById('btn-start-scan');
+  if (bs) { bs.style.display = 'inline-flex'; bs.disabled = false; }
+}
+
+// ── BARCODE LOGIN ─────────────────────────────────────────────
+async function startBarcodeScanner() {
+  if (LOGIN_STATE.barcodeStream) return; // sudah aktif
+  setCamNotice(null);
+
+  // Cek apakah halaman dibuka via protokol yang aman
+  const proto = location.protocol;
+  if (proto !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    setCamNotice('error',
+      '<b>Kamera tidak bisa diakses — halaman harus dibuka via HTTPS</b>' +
+      'Browser modern memblokir akses kamera pada halaman HTTP biasa atau file://. ' +
+      '<b>Solusi:</b> buka halaman ini dengan alamat <b>https://...</b>, bukan http:// atau dari file lokal. ' +
+      '<br><br><span style="opacity:0.8">Sementara gunakan tab <b>Manual</b> atau ketik barcode di bawah.</span>'
+    );
+    const bs = document.getElementById('btn-start-scan');
+    if (bs) { bs.style.display = 'inline-flex'; bs.disabled = false; }
+    return;
+  }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setCamNotice('error',
+      '<b>Browser tidak mendukung akses kamera</b>' +
+      'Gunakan Chrome/Edge/Firefox terbaru dan pastikan halaman dibuka via <b>HTTPS</b>. ' +
+      'Gunakan tab <b>Manual</b> atau ketik barcode di bawah.'
+    );
+    return;
+  }
+
+  // Cek apakah izin sudah pernah diblokir sebelum memanggil getUserMedia
+  if (navigator.permissions) {
+    try {
+      const perm = await navigator.permissions.query({ name: 'camera' });
+      if (perm.state === 'denied') {
+        showCameraBlockedNotice();
+        const bs = document.getElementById('btn-start-scan');
+        if (bs) { bs.style.display = 'inline-flex'; bs.disabled = false; }
+        return;
+      }
+    } catch(e) { /* browser tidak support query 'camera' */ }
+  }
+
+  // Panggil getUserMedia → popup "Izinkan/Blokir" muncul di sini
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    LOGIN_STATE.barcodeStream = stream;
+    const video = document.getElementById('barcode-video');
+    video.srcObject = stream;
+    video.style.display = 'block';
+    document.getElementById('barcode-placeholder').style.display = 'none';
+    document.getElementById('btn-start-scan').style.display = 'none';
+    document.getElementById('btn-stop-scan').style.display = 'inline-flex';
+    document.getElementById('barcode-scan-status').textContent = 'Menunggu barcode...';
+    await video.play();
+    if ('BarcodeDetector' in window) {
+      const detector = new BarcodeDetector({ formats: ['qr_code','code_128','code_39','ean_13','ean_8','data_matrix'] });
+      LOGIN_STATE.scanInterval = setInterval(async () => {
+        try {
+          const barcodes = await detector.detect(video);
+          if (barcodes.length > 0) {
+            const code = barcodes[0].rawValue;
+            stopBarcodeScanner();
+            document.getElementById('barcode-scan-status').textContent = '✓ Barcode terbaca!';
+            document.getElementById('inp-barcode-manual').value = code;
+            await doLoginBarcode(code);
+          }
+        } catch(e) {}
+      }, 400);
+    } else {
+      setCamNotice('warn',
+        '<b>Scan otomatis tidak tersedia di browser ini</b>' +
+        'Ketikkan kode barcode secara manual di kolom di bawah, atau gunakan scanner USB/Bluetooth.'
+      );
+    }
+  } catch(e) {
+    const name = e.name || '';
+    if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+      // Bedakan: user baru saja klik "Blokir" vs sudah diblokir sebelumnya
+      if (navigator.permissions) {
+        try {
+          const perm = await navigator.permissions.query({ name: 'camera' });
+          if (perm.state === 'denied') {
+            showCameraBlockedNotice(); // sudah pernah diblokir sebelumnya
+          } else {
+            // User baru klik "Blokir" di popup tadi
+            setCamNotice('warn',
+              '<b>Kamera tidak diizinkan</b>' +
+              'Anda memilih <b>Blokir</b> pada dialog izin. Klik tombol di bawah untuk mencoba lagi dan pilih <b>Izinkan</b>.' +
+              '<br><span style="opacity:0.8">Atau gunakan tab <b>Manual</b> untuk login tanpa kamera.</span>'
+            );
+            const bs = document.getElementById('btn-start-scan');
+            if (bs) { bs.style.display = 'inline-flex'; bs.disabled = false; }
+          }
+        } catch(e2) { showCameraBlockedNotice(); }
+      } else {
+        showCameraBlockedNotice();
+      }
+    } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+      setCamNotice('error',
+        '<b>Kamera tidak ditemukan</b>' +
+        'Perangkat ini tidak memiliki kamera atau kamera tidak terdeteksi. ' +
+        'Gunakan tab <b>Manual</b> atau ketik barcode di bawah.'
+      );
+    } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+      setCamNotice('error',
+        '<b>Kamera sedang digunakan aplikasi lain</b>' +
+        'Tutup aplikasi lain yang menggunakan kamera, lalu klik <b>Aktifkan Kamera</b> kembali.'
+      );
+      const bs = document.getElementById('btn-start-scan');
+      if (bs) { bs.style.display = 'inline-flex'; bs.disabled = false; }
+    } else {
+      setCamNotice('error',
+        `<b>Gagal mengakses kamera</b>${e.message || 'Error tidak diketahui'}. Gunakan tab <b>Manual</b>.`
+      );
+      const bs = document.getElementById('btn-start-scan');
+      if (bs) { bs.style.display = 'inline-flex'; bs.disabled = false; }
+    }
+  }
+}
+
+function stopBarcodeScanner() {
+  if (LOGIN_STATE.barcodeStream) {
+    LOGIN_STATE.barcodeStream.getTracks().forEach(t => t.stop());
+    LOGIN_STATE.barcodeStream = null;
+  }
+  if (LOGIN_STATE.scanInterval) { clearInterval(LOGIN_STATE.scanInterval); LOGIN_STATE.scanInterval = null; }
+  const video = document.getElementById('barcode-video');
+  if (video) { video.style.display = 'none'; video.srcObject = null; }
+  const ph = document.getElementById('barcode-placeholder');
+  if (ph) ph.style.display = 'block';
+  const bs = document.getElementById('btn-start-scan');
+  if (bs) { bs.style.display = 'inline-flex'; bs.disabled = false; bs.textContent = ''; bs.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Izinkan & Aktifkan Kamera'; }
+  const bst = document.getElementById('btn-stop-scan');
+  if (bst) bst.style.display = 'none';
+}
+
+// ── INI BARIS YANG DIPERBAIKI ────────────────────────────────
+async function doLoginBarcode(code) {
+  if (!code) { toast('Barcode kosong', 'error'); return; }
+  document.getElementById('barcode-scan-status').textContent = 'Mencari akun...';
+  try {
+    const r = await api('loginBarcode', { idPersonalia: code }); // ← PERBAIKAN DI SINI
+    if (!r || !r.ok) {
+      document.getElementById('barcode-scan-status').textContent = '';
+      toast(r?.pesan || 'Barcode tidak dikenali', 'error');
+      return;
+    }
+    if (r.needPassword) {
+      LOGIN_STATE.pendingAdminData = r;
+      document.getElementById('admin-confirm-pass').value = '';
+      document.getElementById('barcode-scan-status').textContent = '';
+      openModal('modal-admin-password');
+    } else {
+      STATE.user = r.data;
+      stopBarcodeScanner();
+      showApp();
+    }
+  } catch(e) {
+    document.getElementById('barcode-scan-status').textContent = '';
+    toast('Gagal terhubung ke server', 'error');
+  }
+}
+
+async function confirmAdminLogin() {
+  const pass = document.getElementById('admin-confirm-pass').value;
+  if (!pass) { toast('Masukkan password', 'error'); return; }
+  const nama = LOGIN_STATE.pendingAdminData?.nama;
+  try {
+    const r = await api('login', { username: nama, password: pass });
+    if (!r || !r.ok) { toast(r?.pesan || 'Password salah', 'error'); return; }
+    STATE.user = r.data;
+    closeModal('modal-admin-password');
+    LOGIN_STATE.pendingAdminData = null;
+    showApp();
+  } catch(e) { toast('Gagal terhubung ke server', 'error'); }
+}
+
+// ── MANUAL LOGIN ──────────────────────────────────────────────
+function onDivisiChange() {
+  const divId = document.getElementById('inp-divisi').value;
+  const staffSel = document.getElementById('inp-user-sel');
+  staffSel.innerHTML = '<option value="">— Pilih nama —</option>';
+  staffSel.disabled = !divId;
+  document.getElementById('login-admin-section').style.display = 'none';
+  const btn = document.getElementById('btn-login');
+  if (btn) btn.disabled = true;
+  if (!divId) return;
+  const staffDivisi = STATE.staff.filter(s => {
+    const aktif = s.aktif !== false && s.aktif !== 0 && s.aktif !== '0';
+    return s.divisi === divId && aktif;
+  });
+  staffDivisi.forEach(s => {
+    staffSel.innerHTML += `<option value="${s.id || s.nama}">${s.nama}</option>`;
+  });
+}
+
+function onStaffChange() {
+  const staffId = document.getElementById('inp-user-sel').value;
+  const btn = document.getElementById('btn-login');
+  if (!staffId) {
+    document.getElementById('login-admin-section').style.display = 'none';
+    if (btn) btn.disabled = true;
+    return;
+  }
+  const staff = STATE.staff.find(s => (s.id || s.nama) === staffId);
+  if (staff?.role === 'admin') {
+    document.getElementById('login-admin-section').style.display = 'block';
+  } else {
+    document.getElementById('login-admin-section').style.display = 'none';
+  }
+  if (btn) btn.disabled = false;
+}
+
+async function doLoginFinal() {
+  const staffId = document.getElementById('inp-user-sel').value;
+  if (!staffId) { toast('Pilih nama staff', 'error'); return; }
+  const staff = STATE.staff.find(s => (s.id || s.nama) === staffId);
+  if (!staff) { toast('Staff tidak ditemukan', 'error'); return; }
+
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Memuat...';
+  try {
+    if (staff.role === 'admin') {
+      const pass = document.getElementById('inp-pass-admin').value;
+      if (!pass) { toast('Isi password admin', 'error'); return; }
+      const r = await api('login', { username: staff.nama, password: pass });
+      if (!r || !r.ok) { toast(r?.pesan || 'Password salah', 'error'); return; }
+      STATE.user = r.data;
+    } else {
+      const r = await api('loginByName', { nama: staff.nama, idStaff: staff.id });
+      if (r && r.ok) {
+        STATE.user = r.data;
+      } else {
+        STATE.user = { id: staff.id, nama: staff.nama, role: staff.role, divisi: staff.divisi };
+      }
+    }
+    showApp();
+  } catch(e) { toast('Gagal terhubung ke server', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Masuk'; }
+}
+
+function doLogout() {
+  STATE.user = null;
+  stopBarcodeScanner();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  switchLoginTab('barcode');
+  document.getElementById('inp-barcode-manual').value = '';
+  document.getElementById('barcode-scan-status').textContent = '';
+  document.getElementById('inp-divisi').value = '';
+  const staffSel = document.getElementById('inp-user-sel');
+  staffSel.innerHTML = '<option value="">— Pilih nama —</option>';
+  staffSel.disabled = true;
+  document.getElementById('login-admin-section').style.display = 'none';
+  const btn = document.getElementById('btn-login');
+  if (btn) btn.disabled = true;
+}
+
+// ── SHOW APP ─────────────────────────────────────────────────
+async function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('sidebar-kantor').textContent = 'PT Devin Buana Perkasa';
+  document.getElementById('user-name').textContent = STATE.user.nama;
+  document.getElementById('user-role').textContent = STATE.user.role === 'admin' ? 'Administrator' : 'Staff';
+  document.getElementById('user-avatar').textContent = initials(STATE.user.nama);
+  buildNav();
+  await loadMasterData();
+  showScreen('dashboard');
+  loadDashboard();
+}
+
+function buildNav() {
+  const isAdmin = STATE.user.role === 'admin';
+  const btnTambahBarang = document.getElementById('btn-tambah-barang');
+  if (btnTambahBarang) btnTambahBarang.style.display = isAdmin ? '' : 'none';
+  const navItems = [
+    { id: 'dashboard',   label: 'Dashboard',          icon: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z', show: true },
+    { id: 'request',     label: 'Ajukan Permintaan',   icon: 'M12 5v14M5 12h14', show: !isAdmin },
+    { id: 'admin-req',   label: 'Kelola Permintaan',   icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 12h6M9 16h6', show: isAdmin, badge: 'pending' },
+    { id: 'barang-masuk',label: 'Barang Masuk',        icon: 'M12 5v14M5 12l7 7 7-7', show: isAdmin },
+    { id: 'stok',        label: 'Stok & Barang',       icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM12 12h.01', show: true },
+    { id: 'laporan',     label: 'Laporan',              icon: 'M18 20V10M12 20V4M6 20v-6', show: isAdmin },
+    { id: 'master',      label: 'Master Data',          icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', show: isAdmin },
+  ];
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  navItems.filter(n => n.show).forEach(n => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-item';
+    btn.dataset.screen = n.id;
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="${n.icon}"/></svg>${n.label}${n.badge ? `<span class="badge-count" id="badge-${n.badge}"></span>` : ''}`;
+    btn.onclick = () => {
+      showScreen(n.id);
+      if (n.id==='admin-req')    loadAdminReq();
+      if (n.id==='dashboard')    loadDashboard();
+      if (n.id==='stok')         renderStok();
+      if (n.id==='laporan')      initLaporan();
+      if (n.id==='master')       loadMaster();
+      if (n.id==='request')      { initReqRows(); loadMyPermintaan(); }
+      if (n.id==='barang-masuk') { initBMRows(); loadBarangMasuk(); }
+    };
+    nav.appendChild(btn);
+  });
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const s = document.getElementById('screen-' + id);
+  if (s) s.classList.add('active');
+  const nb = document.querySelector(`[data-screen="${id}"]`);
+  if (nb) nb.classList.add('active');
+}
+
+// ── MASTER DATA ───────────────────────────────────────────────
+async function loadMasterData() {
+  const [rKat, rDiv, rVend, rStaff] = await Promise.all([
+    api('getKategori'), api('getDivisi'), api('getVendor'), api('getAllStaff')
+  ]);
+  STATE.kategori = rKat || [];
+  STATE.divisi   = rDiv || [];
+  STATE.vendor   = rVend || [];
+  STATE.staff    = rStaff || [];
+
+  const loginDivSel = document.getElementById('inp-divisi');
+  if (loginDivSel) {
+    loginDivSel.innerHTML = '<option value="">— Pilih divisi —</option>';
+    STATE.divisi.forEach(d => loginDivSel.innerHTML += `<option value="${d.ID_Divisi}">${d.NamaDivisi}</option>`);
+  }
+
+  const rB = await api('getBarang', {});
+  STATE.barang = rB || [];
+  const rSub = await api('getSubKategori', {});
+  STATE.subkategori = rSub || [];
+
+  populateSelect('tb-kat', STATE.kategori, 'ID_Kategori', 'NamaKategori', '— Pilih —');
+  populateSelect('ns-divisi', STATE.divisi, 'ID_Divisi', 'NamaDivisi', '— Pilih —');
+  populateSelect('filter-divisi-req', STATE.divisi, 'ID_Divisi', 'NamaDivisi', 'Semua divisi');
+
+  const sc = document.getElementById('stok-filter-kat');
+  if (sc) {
+    sc.innerHTML = '<option value="">Semua kategori</option>';
+    STATE.kategori.forEach(k => sc.innerHTML += `<option value="${k.ID_Kategori}">${k.NamaKategori}</option>`);
+  }
+
+  const tahunSel = document.getElementById('lap-tahun');
+  if (tahunSel) {
+    const now = new Date().getFullYear();
+    for (let y = now; y >= now - 3; y--) tahunSel.innerHTML += `<option value="${y}" ${y===now?'selected':''}>${y}</option>`;
+  }
+
+  const bulanSel = document.getElementById('lap-bulan');
+  if (bulanSel) bulanSel.value = new Date().getMonth() + 1;
+}
+
+function populateSelect(id, items, valKey, labelKey, placeholder) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<option value="">${placeholder}</option>`;
+  items.forEach(i => el.innerHTML += `<option value="${i[valKey]}">${i[labelKey]}</option>`);
+}
+
+// ── MULTI-ROW PERMINTAAN ──────────────────────────────────────
+let reqRowCount = 0;
+
+function tambahBarisReq() {
+  if (reqRowCount >= 15) { toast('Maksimal 15 baris', 'error'); return; }
+  reqRowCount++;
+  const i = reqRowCount;
+  const tbody = document.getElementById('req-rows');
+  const tr = document.createElement('tr');
+  tr.id = `req-row-${i}`;
+  tr.style.borderBottom = '1px solid var(--border)';
+  const opsiKat = '<option value="">— Pilih —</option>' +
+    (STATE.kategori||[]).map(k => `<option value="${k.ID_Kategori}">${k.NamaKategori}</option>`).join('') +
+    '<option value="LUAR">⚠️ Luar Kategori</option>';
+  tr.innerHTML = `
+    <td style="padding:6px;color:var(--text3);font-size:12px">${i}</td>
+    <td style="padding:4px"><select class="form-select" style="min-width:120px" onchange="loadSubKatRow(${i})">${opsiKat}</select></td>
+    <td style="padding:4px" id="req-subkat-cell-${i}"><select class="form-select" style="min-width:130px" id="req-subkat-${i}" onchange="loadBarangRow(${i})" disabled><option value="">— Pilih —</option></select></td>
+    <td style="padding:4px" id="req-barang-cell-${i}"><select class="form-select" style="min-width:160px" id="req-barang-${i}" onchange="setSatuanRow(${i})" disabled><option value="">— Pilih —</option></select></td>
+    <td style="padding:4px"><input class="form-input" type="number" id="req-jumlah-${i}" min="1" placeholder="0" style="width:70px"/></td>
+    <td style="padding:4px"><input class="form-input" id="req-satuan-${i}" readonly placeholder="-" style="width:70px"/></td>
+    <td style="padding:4px"><input class="form-input" type="date" id="req-tgl-${i}" style="width:140px"/></td>
+    <td style="padding:4px"><input class="form-input" id="req-ket-${i}" placeholder="Keperluan..." style="min-width:140px"/></td>
+    <td style="padding:4px"><button class="btn btn-sm" style="color:var(--red)" onclick="hapusBarisReq(${i})">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function hapusBarisReq(i) {
+  const el = document.getElementById(`req-row-${i}`);
+  if (el) el.remove();
+}
+
+async function loadSubKatRow(i) {
+  const katSel = document.querySelector(`#req-row-${i} select`);
+  const idKat = katSel.value;
+  const subCell = document.getElementById(`req-subkat-cell-${i}`);
+  const barCell = document.getElementById(`req-barang-cell-${i}`);
+  const subEl = document.getElementById(`req-subkat-${i}`);
+  const barEl = document.getElementById(`req-barang-${i}`);
+
+  if (subEl) { subEl.innerHTML = '<option value="">— Pilih —</option>'; subEl.disabled = true; }
+  if (barEl) { barEl.innerHTML = '<option value="">— Pilih —</option>'; barEl.disabled = true; }
+  document.getElementById(`req-satuan-${i}`).value = '';
+
+  if (idKat === 'LUAR') {
+    subCell.innerHTML = `<input class="form-input" id="req-subkat-${i}" placeholder="Sub kategori baru..." style="min-width:130px"/>`;
+    barCell.innerHTML = `<input class="form-input" id="req-barang-${i}" placeholder="Nama barang baru..." style="min-width:160px"/>`;
+    document.getElementById(`req-satuan-${i}`).removeAttribute('readonly');
+    document.getElementById(`req-satuan-${i}`).placeholder = 'Satuan';
+    return;
+  }
+
+  if (!subEl || subEl.tagName !== 'SELECT') {
+    subCell.innerHTML = `<select class="form-select" style="min-width:130px" id="req-subkat-${i}" onchange="loadBarangRow(${i})" disabled><option value="">— Pilih —</option></select>`;
+    barCell.innerHTML = `<select class="form-select" style="min-width:160px" id="req-barang-${i}" onchange="setSatuanRow(${i})" disabled><option value="">— Pilih —</option></select>`;
+    document.getElementById(`req-satuan-${i}`).setAttribute('readonly','');
+    document.getElementById(`req-satuan-${i}`).placeholder = '-';
+  }
+  if (!idKat) return;
+  const r = await api('getSubKategori', { idKategori: idKat });
+  const newSub = document.getElementById(`req-subkat-${i}`);
+  (r||[]).forEach(s => newSub.innerHTML += `<option value="${s.ID_SubKategori}">${s.NamaSubKategori}</option>`);
+  newSub.disabled = false;
+}
+
+async function loadBarangRow(i) {
+  const idSub = document.getElementById(`req-subkat-${i}`).value;
+  const barEl = document.getElementById(`req-barang-${i}`);
+  barEl.innerHTML = '<option value="">— Pilih —</option>';
+  barEl.disabled = true;
+  document.getElementById(`req-satuan-${i}`).value = '';
+  if (!idSub) return;
+  const r = await api('getBarang', { idSubKategori: idSub });
+  (r||[]).forEach(b => barEl.innerHTML += `<option value="${b.ID_Barang}" data-sat="${b.Satuan}">${b.NamaBarang} (stok: ${b.StokSaatIni})</option>`);
+  barEl.disabled = false;
+}
+
+function setSatuanRow(i) {
+  const opt = document.getElementById(`req-barang-${i}`).selectedOptions[0];
+  document.getElementById(`req-satuan-${i}`).value = opt ? (opt.dataset.sat || '') : '';
+}
+
+async function loadSubKatModal() {
+  const idKat = document.getElementById('tb-kat').value;
+  const el = document.getElementById('tb-subkat');
+  el.innerHTML = '<option value="">— Pilih —</option>';
+  if (!idKat) return;
+  const r = await api('getSubKategori', { idKategori: idKat });
+  (r||[]).forEach(s => el.innerHTML += `<option value="${s.ID_SubKategori}">${s.NamaSubKategori}</option>`);
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+async function loadDashboard() {
+  const r = await api('getDashboard');
+  if (!r) return;
+
+  const m = document.getElementById('dash-metrics');
+  m.innerHTML = `
+    <div class="metric-card"><div class="metric-label">Total Item</div><div class="metric-value">${r.totalItem||0}</div><div class="metric-sub">jenis barang aktif</div></div>
+    <div class="metric-card"><div class="metric-label">Pending</div><div class="metric-value" style="color:var(--amber)">${r.pending||0}</div><div class="metric-sub">menunggu approval</div></div>
+    <div class="metric-card"><div class="metric-label">Barang Masuk</div><div class="metric-value" style="color:var(--accent)">${r.masukBulanIni||0}</div><div class="metric-sub">bulan ini</div></div>
+    <div class="metric-card"><div class="metric-label">Barang Keluar</div><div class="metric-value" style="color:var(--blue)">${r.keluarBulanIni||0}</div><div class="metric-sub">bulan ini</div></div>
+  `;
+
+  const bp = document.getElementById('badge-pending');
+  if (bp) bp.textContent = r.pending > 0 ? r.pending : '';
+
+  const perDiv = r.perDivisi || {};
+  const divKeys = Object.keys(perDiv);
+  const maxVal = Math.max(...divKeys.map(k => perDiv[k]), 1);
+  const colors = ['var(--accent)','#2196F3','#F59E0B','#EC4899','#8B5CF6','#14B8A6'];
+  const chart = document.getElementById('dash-chart');
+  if (divKeys.length === 0) {
+    chart.innerHTML = '<div class="empty"><p>Belum ada data bulan ini</p></div>';
+  } else {
+    chart.innerHTML = divKeys.map((k,i) => `
+      <div class="chart-bar-group">
+        <div class="chart-bar-val">${perDiv[k]}</div>
+        <div class="chart-bar" style="height:${Math.round((perDiv[k]/maxVal)*90)}px;background:${colors[i%colors.length]}"></div>
+        <div class="chart-bar-label">${k}</div>
+      </div>`).join('');
+  }
+
+  const stokEl = document.getElementById('dash-stok');
+  if (!r.hampirHabis || r.hampirHabis.length === 0) {
+    stokEl.innerHTML = '<div class="empty"><p>Semua stok aman</p></div>';
+  } else {
+    stokEl.innerHTML = r.hampirHabis.map(s => {
+      const pct = Math.round((s.stok / Math.max(s.minimum * 2, 1)) * 100);
+      const color = s.stok <= 0 ? '#EF4444' : s.stok <= s.minimum ? '#F59E0B' : 'var(--accent)';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+        <span style="flex:1;font-size:12px">${s.nama}</span>
+        <div class="stok-bar-wrap"><div class="stok-bar-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+        <span style="font-size:11px;color:var(--text2);font-family:var(--mono);min-width:55px;text-align:right">${s.stok} ${s.satuan}</span>
+      </div>`;
+    }).join('');
+  }
+
+  const tabel = document.getElementById('dash-tabel');
+  if (!r.terbaru || r.terbaru.length === 0) {
+    tabel.innerHTML = '<div class="empty"><p>Belum ada permintaan</p></div>';
+  } else {
+    tabel.innerHTML = `<table><thead><tr><th>Staff</th><th>Divisi</th><th>Barang</th><th>Qty</th><th>Tanggal</th><th>Status</th></tr></thead><tbody>
+      ${r.terbaru.map(p => `<tr>
+        <td>${p.NamaStaff||'-'}</td><td>${p.NamaDivisi||'-'}</td><td>${p.NamaBarang||'-'}</td>
+        <td style="font-family:var(--mono)">${p.Jumlah||0}</td><td>${fTgl(p.TglPermintaan)}</td><td>${statusBadge(p.Status)}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+}
+
+// ── PERMINTAAN STAFF ──────────────────────────────────────────
+async function submitPermintaan() {
+  const divisiObj = STATE.divisi.find(d => d.ID_Divisi === STATE.user.divisi) || {};
+  const rows = document.querySelectorAll('#req-rows tr');
+  if (rows.length === 0) { toast('Tambahkan minimal 1 baris', 'error'); return; }
+
+  let sukses = 0, gagal = 0;
+  for (const row of rows) {
+    const i = row.id.replace('req-row-', '');
+    const katSel   = document.querySelector(`#req-row-${i} select`);
+    const isLuar   = katSel && katSel.value === 'LUAR';
+    const idBarang  = isLuar ? 'LUAR' : document.getElementById(`req-barang-${i}`)?.value;
+    const namaBarangLuar = isLuar ? (document.getElementById(`req-barang-${i}`)?.value||'').trim() : '';
+    const jumlah    = parseInt(document.getElementById(`req-jumlah-${i}`)?.value);
+    const tgl       = document.getElementById(`req-tgl-${i}`)?.value;
+    const keperluan = document.getElementById(`req-ket-${i}`)?.value.trim() || '-';
+    if (isLuar && !namaBarangLuar) { gagal++; continue; }
+    if (!isLuar && !idBarang) { gagal++; continue; }
+    if (!jumlah || jumlah < 1 || !tgl) { gagal++; continue; }
+    const barangObj = STATE.barang.find(b => b.ID_Barang === idBarang) || {};
+    const r = await api('ajukanPermintaan', {
+      idStaff: STATE.user.id, idDivisi: STATE.user.divisi,
+      idBarang: isLuar ? '' : idBarang,
+      jumlah, keperluan,
+      tglPermintaan: tgl + 'T00:00:00+07:00',
+      namaStaff: STATE.user.nama,
+      namaDivisi: divisiObj.NamaDivisi || '-',
+      namaBarang: isLuar ? namaBarangLuar : (barangObj.NamaBarang || '-'),
+      luarKategori: isLuar ? 'Ya' : 'Tidak',
+    });
+    if (r && r.ok) sukses++; else gagal++;
+  }
+
+  if (sukses > 0) {
+    toast(`${sukses} permintaan berhasil dikirim!`, 'success');
+    document.getElementById('req-rows').innerHTML = '';
+    reqRowCount = 0;
+    loadMyPermintaan();
+  }
+  if (gagal > 0) toast(`${gagal} baris gagal/tidak lengkap`, 'error');
+}
+
+function initReqRows() {
+  document.getElementById('req-rows').innerHTML = '';
+  reqRowCount = 0;
+  tambahBarisReq();
+}
+
+function initBMRows() {
+  document.getElementById('bm-rows').innerHTML = '';
+  bmRowCount = 0;
+  tambahBarisBM();
+}
+
+async function loadMyPermintaan() {
+  const r = await api('getPermintaan', { idStaff: STATE.user.id });
+  const el = document.getElementById('my-permintaan');
+  if (!r || r.length === 0) { el.innerHTML = '<div class="empty"><p>Belum ada permintaan</p></div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>Barang</th><th>Qty</th><th>Tanggal</th><th>Status</th></tr></thead><tbody>
+    ${r.slice(0,10).map(p => `<tr>
+      <td>${p.NamaBarang||'-'}</td>
+      <td style="font-family:var(--mono)">${p.Jumlah}</td>
+      <td>${fTgl(p.TglPermintaan)}</td>
+      <td>${statusBadge(p.Status)}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+// ── ADMIN: KELOLA PERMINTAAN ──────────────────────────────────
+async function loadAdminReq() {
+  const status = document.getElementById('filter-status').value;
+  const divisi = document.getElementById('filter-divisi-req').value;
+  const r = await api('getPermintaan', { status: status || undefined, idDivisi: divisi || undefined });
+  const el = document.getElementById('admin-req-table');
+  if (!r || r.length === 0) { el.innerHTML = '<div class="empty"><p>Tidak ada data</p></div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>ID</th><th>Staff</th><th>Divisi</th><th>Barang</th><th>Stok</th><th>Qty</th><th>Keperluan</th><th>Tgl Pengajuan</th><th>Tgl Approval</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+    ${r.map(p => {
+      const barangObj = STATE.barang.find(b => b.ID_Barang === p.ID_Barang);
+      const stokInfo = p.LuarKategori === 'Ya'
+        ? '<span style="color:var(--amber);font-size:11px">⚠️ Luar kategori</span>'
+        : barangObj
+          ? (() => { const s = Number(barangObj.StokSaatIni||0); return s <= 0 ? '<span class="badge badge-rejected">Habis</span>' : s <= Number(barangObj.StokMinimum||0) ? `<span class="badge badge-pending">${s}</span>` : `<span style="font-family:var(--mono)">${s}</span>`; })()
+          : '-';
+      const namaBarang = p.LuarKategori === 'Ya'
+        ? `${p.NamaBarang||'-'} <span style="font-size:10px;background:var(--amber-bg);color:var(--amber);padding:1px 5px;border-radius:4px">Luar Kategori</span>`
+        : p.NamaBarang||'-';
+      return `<tr>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${p.ID_Permintaan||'-'}</td>
+        <td>${p.NamaStaff||'-'}</td>
+        <td>${p.NamaDivisi||'-'}</td>
+        <td>${namaBarang}</td>
+        <td>${stokInfo}</td>
+        <td style="font-family:var(--mono)">${p.Jumlah}</td>
+        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.Keperluan||'-'}</td>
+        <td>${fTgl(p.TglPermintaan)}</td>
+        <td>${p.TglApproval ? fTgl(p.TglApproval) : '-'}</td>
+        <td>${statusBadge(p.Status)}</td>
+        <td>${aksiButtons(p)}</td>
+      </tr>`;
+    }).join('')}
+  </tbody></table>`;
+}
+
+function aksiButtons(p) {
+  if (p.Status === 'Pending') {
+    return `<button class="btn btn-sm" onclick="openApproval('${p.ID_Permintaan}','${(p.NamaStaff||'').replace(/'/g,"\\'")}','${(p.NamaBarang||'').replace(/'/g,"\\'")}','${p.Jumlah}','${p.Keperluan||''}')">Proses</button>`;
+  }
+  if (p.Status === 'Disetujui') {
+    return `<button class="btn btn-blue btn-sm" onclick="konfirmasiAmbil('${p.ID_Permintaan}')">Konfirmasi Ambil</button>`;
+  }
+  return `<span style="font-size:11px;color:var(--text3)">selesai</span>`;
+}
+
+function openApproval(id, staff, barang, jumlah, keperluan) {
+  STATE.currentApprovalId = id;
+  document.getElementById('modal-approval-info').innerHTML =
+    `<b>ID:</b> ${id}<br><b>Staff:</b> ${staff}<br><b>Barang:</b> ${barang}<br><b>Jumlah:</b> ${jumlah}<br><b>Keperluan:</b> ${keperluan||'-'}`;
+  document.getElementById('modal-catatan').value = '';
+  document.getElementById('modal-tgl-approval').value = new Date().toISOString().split('T')[0];
+  openModal('modal-approval');
+}
+
+async function prosesReq(aksi) {
+  const catatan = document.getElementById('modal-catatan').value;
+  const tglApproval = document.getElementById('modal-tgl-approval').value;
+  const r = await api('prosesPermintaan', { idPermintaan: STATE.currentApprovalId, aksiProses: aksi, catatan, tglApproval });
+  if (r && r.ok) {
+    toast(`Permintaan ${aksi}!`, aksi === 'Disetujui' ? 'success' : '');
+    closeModal('modal-approval');
+    loadAdminReq();
+    loadDashboard();
+  } else {
+    toast(r?.pesan || 'Gagal memproses', 'error');
+  }
+}
+
+async function konfirmasiAmbil(id) {
+  if (!confirm('Konfirmasi bahwa barang sudah diambil?')) return;
+  const r = await api('konfirmasiAmbil', { idPermintaan: id });
+  if (r && r.ok) {
+    toast('Pengambilan dikonfirmasi, stok terupdate', 'success');
+    loadAdminReq();
+    loadDashboard();
+  } else {
+    toast(r?.pesan || 'Gagal konfirmasi', 'error');
+  }
+}
+
+// ── BARANG MASUK ──────────────────────────────────────────────
+let bmRowCount = 0;
+
+function tambahBarisBM() {
+  if (bmRowCount >= 15) { toast('Maksimal 15 baris', 'error'); return; }
+  bmRowCount++;
+  const i = bmRowCount;
+  const tbody = document.getElementById('bm-rows');
+  const tr = document.createElement('tr');
+  tr.id = `bm-row-${i}`;
+  tr.style.borderBottom = '1px solid var(--border)';
+  const opsiVendor = '<option value="">— Pilih —</option>' + (STATE.vendor||[]).map(v => `<option value="${v.ID_Vendor}">${v.NamaVendor}</option>`).join('');
+  const opsiBarang = '<option value="">— Pilih —</option>' + (STATE.barang||[]).map(b => `<option value="${b.ID_Barang}">${b.NamaBarang}</option>`).join('');
+  tr.innerHTML = `
+    <td style="padding:6px;color:var(--text3);font-size:12px">${i}</td>
+    <td style="padding:4px"><select class="form-select" id="bm-vendor-${i}" style="min-width:130px">${opsiVendor}</select></td>
+    <td style="padding:4px"><input class="form-input" type="date" id="bm-tgl-${i}" style="width:140px"/></td>
+    <td style="padding:4px"><select class="form-select" id="bm-barang-${i}" style="min-width:160px">${opsiBarang}</select></td>
+    <td style="padding:4px"><input class="form-input" type="number" id="bm-jumlah-${i}" min="1" placeholder="0" style="width:70px" oninput="hitungTotalRow(${i})"/></td>
+    <td style="padding:4px"><input class="form-input" type="number" id="bm-harga-${i}" min="0" placeholder="0" style="width:110px" oninput="hitungTotalRow(${i})"/></td>
+    <td style="padding:4px"><input class="form-input" id="bm-faktur-${i}" placeholder="INV-001" style="width:100px"/></td>
+    <td style="padding:4px"><input class="form-input" id="bm-total-${i}" readonly placeholder="0" style="width:110px"/></td>
+    <td style="padding:4px"><button class="btn btn-sm" style="color:var(--red)" onclick="hapusBarisBM(${i})">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function hapusBarisBM(i) {
+  const el = document.getElementById(`bm-row-${i}`);
+  if (el) el.remove();
+}
+
+function hitungTotalRow(i) {
+  const j = parseFloat(document.getElementById(`bm-jumlah-${i}`)?.value) || 0;
+  const h = parseFloat(document.getElementById(`bm-harga-${i}`)?.value) || 0;
+  document.getElementById(`bm-total-${i}`).value = j && h ? fRp(j * h) : '';
+}
+
+async function submitBarangMasuk() {
+  const rows = document.querySelectorAll('#bm-rows tr');
+  if (rows.length === 0) { toast('Tambahkan minimal 1 baris', 'error'); return; }
+  let sukses = 0, gagal = 0;
+  for (const row of rows) {
+    const i = row.id.replace('bm-row-', '');
+    const idVendor = document.getElementById(`bm-vendor-${i}`)?.value;
+    const idBarang = document.getElementById(`bm-barang-${i}`)?.value;
+    const jumlah   = parseInt(document.getElementById(`bm-jumlah-${i}`)?.value);
+    const harga    = parseInt(document.getElementById(`bm-harga-${i}`)?.value);
+    const tgl      = document.getElementById(`bm-tgl-${i}`)?.value;
+    const faktur   = document.getElementById(`bm-faktur-${i}`)?.value || '-';
+    if (!idVendor || !idBarang || !jumlah || !harga || !tgl) { gagal++; continue; }
+    const vendorObj = STATE.vendor.find(v => v.ID_Vendor === idVendor) || {};
+    const barangObj = STATE.barang.find(b => b.ID_Barang === idBarang) || {};
+    const r = await api('inputBarangMasuk', {
+      tglMasuk: tgl, idBarang, idVendor, jumlah, hargaSatuan: harga,
+      noFaktur: faktur, namaBarang: barangObj.NamaBarang || '-',
+      namaVendor: vendorObj.NamaVendor || '-',
+    });
+    if (r && r.ok) sukses++; else gagal++;
+  }
+  if (sukses > 0) {
+    toast(`${sukses} barang masuk berhasil disimpan!`, 'success');
+    document.getElementById('bm-rows').innerHTML = '';
+    bmRowCount = 0;
+    loadBarangMasuk();
+    const rB = await api('getBarang', {});
+    STATE.barang = rB || [];
+  }
+  if (gagal > 0) toast(`${gagal} baris gagal/tidak lengkap`, 'error');
+}
+
+async function loadBarangMasuk() {
+  const bulan = document.getElementById('bm-filter-bulan').value;
+  const r = await api('getBarangMasuk', { bulan: bulan || undefined });
+  const el = document.getElementById('bm-table');
+  if (!r || r.length === 0) { el.innerHTML = '<div class="empty"><p>Belum ada data</p></div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>Tanggal</th><th>Barang</th><th>Vendor</th><th>Qty</th><th>Harga Satuan</th><th>Total</th><th>No. Faktur</th></tr></thead><tbody>
+    ${r.map(b => `<tr>
+      <td>${fTgl(b.TglMasuk)}</td><td>${b.NamaBarang||'-'}</td><td>${b.NamaVendor||'-'}</td>
+      <td style="font-family:var(--mono)">${b.Jumlah}</td>
+      <td style="font-family:var(--mono)">${fRp(b.HargaSatuan)}</td>
+      <td style="font-family:var(--mono);font-weight:600">${fRp(b.TotalHarga)}</td>
+      <td style="font-size:11px;color:var(--text3)">${b.NoFaktur||'-'}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+// ── STOK ──────────────────────────────────────────────────────
+function renderStok() {
+  const q   = (document.getElementById('stok-search')?.value || '').toLowerCase();
+  const kat = document.getElementById('stok-filter-kat')?.value || '';
+  let data  = [...STATE.barang];
+  if (q)   data = data.filter(b => b.NamaBarang.toLowerCase().includes(q));
+  if (kat) data = data.filter(b => b.ID_Kategori === kat);
+  const el = document.getElementById('stok-table');
+  if (data.length === 0) { el.innerHTML = '<div class="empty"><p>Tidak ada data</p></div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>Nama Barang</th><th>Kategori</th><th>Satuan</th><th>Stok</th><th>Min</th><th>Harga Satuan</th><th>Status Stok</th></tr></thead><tbody>
+    ${data.map(b => {
+      const stok = Number(b.StokSaatIni || 0);
+      const min  = Number(b.StokMinimum || 0);
+      let stokBadge = stok <= 0
+        ? '<span class="badge badge-rejected">Habis</span>'
+        : stok <= min
+        ? '<span class="badge badge-pending">Hampir habis</span>'
+        : '<span class="badge badge-approved">Aman</span>';
+      const katObj = STATE.kategori.find(k => k.ID_Kategori === b.ID_Kategori);
+      return `<tr>
+        <td style="font-weight:500">${b.NamaBarang}</td>
+        <td style="font-size:12px;color:var(--text2)">${katObj?.NamaKategori||'-'}</td>
+        <td>${b.Satuan}</td>
+        <td style="font-family:var(--mono);font-weight:600">${stok}</td>
+        <td style="font-family:var(--mono);color:var(--text3)">${min}</td>
+        <td style="font-family:var(--mono)">${fRp(b.HargaSatuan)}</td>
+        <td>${stokBadge}</td>
+      </tr>`;
+    }).join('')}
+  </tbody></table>`;
+}
+
+function openModalTambahBarang() {
+  document.getElementById('tb-nama').value = '';
+  document.getElementById('tb-satuan').value = '';
+  document.getElementById('tb-min').value = '';
+  document.getElementById('tb-harga').value = '';
+  openModal('modal-tambah-barang');
+}
+
+async function submitTambahBarang() {
+  const idKat    = document.getElementById('tb-kat').value;
+  const idSubKat = document.getElementById('tb-subkat').value;
+  const nama     = document.getElementById('tb-nama').value.trim();
+  const satuan   = document.getElementById('tb-satuan').value.trim();
+  const min      = parseInt(document.getElementById('tb-min').value) || 5;
+  const harga    = parseInt(document.getElementById('tb-harga').value) || 0;
+  if (!idKat || !idSubKat || !nama || !satuan) { toast('Lengkapi semua data', 'error'); return; }
+  const r = await api('tambahBarang', { idKategori: idKat, idSubKategori: idSubKat, namaBarang: nama, satuan, stokMinimum: min, hargaSatuan: harga });
+  if (r && r.ok) {
+    toast('Barang berhasil ditambahkan!', 'success');
+    closeModal('modal-tambah-barang');
+    const rB = await api('getBarang', {});
+    STATE.barang = rB || [];
+    renderStok();
+  } else {
+    toast(r?.pesan || 'Gagal menyimpan', 'error');
+  }
+}
+
+// ── LAPORAN ───────────────────────────────────────────────────
+function initLaporan() { loadLaporan(); }
+
+function switchLaporan(tipe, btn) {
+  STATE.laporanTipe = tipe;
+  document.querySelectorAll('#laporan-tabs .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  loadLaporan();
+}
+
+async function loadLaporan() {
+  const bulan = document.getElementById('lap-bulan').value;
+  const tahun = document.getElementById('lap-tahun').value;
+  const el    = document.getElementById('laporan-content');
+  el.innerHTML = '<div class="empty"><p>Memuat...</p></div>';
+  const r = await api('getLaporan', { tipe: STATE.laporanTipe, bulan, tahun });
+  renderLaporan(r);
+}
+
+function renderLaporan(r) {
+  const el = document.getElementById('laporan-content');
+  if (!r) { el.innerHTML = '<div class="empty"><p>Tidak ada data</p></div>'; return; }
+  if (STATE.laporanTipe === 'keluar') {
+    if (!r.length) { el.innerHTML = '<div class="empty"><p>Tidak ada data barang keluar</p></div>'; return; }
+    const total = r.reduce((s, p) => s + Number(p.Jumlah||0), 0);
+    el.innerHTML = `<div style="margin-bottom:10px;font-size:13px;color:var(--text2)">Total keluar: <b style="color:var(--text)">${total} item</b></div>
+      <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Staff</th><th>Divisi</th><th>Barang</th><th>Qty</th></tr></thead><tbody>
+        ${r.map(p => `<tr><td>${fTgl(p.TglAmbil)}</td><td>${p.NamaStaff||'-'}</td><td>${p.NamaDivisi||'-'}</td><td>${p.NamaBarang||'-'}</td><td style="font-family:var(--mono)">${p.Jumlah}</td></tr>`).join('')}
+      </tbody></table></div>`;
+  }
+  if (STATE.laporanTipe === 'masuk') {
+    if (!r.length) { el.innerHTML = '<div class="empty"><p>Tidak ada data barang masuk</p></div>'; return; }
+    const totalVal = r.reduce((s, b) => s + Number(b.TotalHarga||0), 0);
+    el.innerHTML = `<div style="margin-bottom:10px;font-size:13px;color:var(--text2)">Total nilai: <b style="color:var(--text)">${fRp(totalVal)}</b></div>
+      <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Barang</th><th>Vendor</th><th>Qty</th><th>Harga Satuan</th><th>Total</th></tr></thead><tbody>
+        ${r.map(b => `<tr><td>${fTgl(b.TglMasuk)}</td><td>${b.NamaBarang||'-'}</td><td>${b.NamaVendor||'-'}</td><td style="font-family:var(--mono)">${b.Jumlah}</td><td style="font-family:var(--mono)">${fRp(b.HargaSatuan)}</td><td style="font-family:var(--mono);font-weight:600">${fRp(b.TotalHarga)}</td></tr>`).join('')}
+      </tbody></table></div>`;
+  }
+  if (STATE.laporanTipe === 'divisi') {
+    const keys = Object.keys(r);
+    if (!keys.length) { el.innerHTML = '<div class="empty"><p>Tidak ada data</p></div>'; return; }
+    el.innerHTML = keys.map(div => `
+      <div style="margin-bottom:16px">
+        <div style="font-weight:600;font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between">
+          <span>${div}</span><span style="color:var(--text2);font-family:var(--mono)">${r[div].total} item</span>
+        </div>
+        <table style="width:100%;font-size:12px"><thead><tr><th>Barang</th><th>Qty</th><th>Tanggal</th></tr></thead><tbody>
+          ${r[div].items.map(i => `<tr><td>${i.barang}</td><td style="font-family:var(--mono)">${i.jumlah}</td><td>${fTgl(i.tgl)}</td></tr>`).join('')}
+        </tbody></table>
+      </div>`).join('<hr style="border:none;border-top:1px solid var(--border);margin-bottom:14px">');
+  }
+}
+
+// ── MASTER DATA ───────────────────────────────────────────────
+function loadMaster() { renderMasterStaff(); }
+
+function switchMaster(tipe, btn) {
+  STATE.masterTipe = tipe;
+  document.querySelectorAll('#master-tabs .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (tipe === 'staff')    renderMasterStaff();
+  if (tipe === 'vendor')   renderMasterVendor();
+  if (tipe === 'kategori') renderMasterKategori();
+}
+
+function renderMasterStaff() {
+  const el = document.getElementById('master-content');
+  el.innerHTML = `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="card-title" style="margin:0">Daftar Staff</div>
+      <button class="btn btn-solid btn-sm" onclick="openModal('modal-tambah-staff')">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg> Tambah Staff
+      </button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Divisi</th><th>Role</th><th>No. WA</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+      ${STATE.staff.map(s => {
+        const div = STATE.divisi.find(d => d.ID_Divisi === s.divisi);
+        const isAktif = s.aktif !== false && s.aktif !== 0 && s.aktif !== '0';
+        return `<tr>
+          <td><div style="display:flex;align-items:center;gap:8px">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent-text)">${initials(s.nama)}</div>
+            ${s.nama}</div></td>
+          <td>${div?.NamaDivisi||'-'}</td>
+          <td><span class="badge ${s.role==='admin'?'badge-admin':'badge-staff'}">${s.role}</span></td>
+          <td style="font-family:var(--mono);font-size:12px">${s.nomorWA||'-'}</td>
+          <td><span class="badge ${isAktif?'badge-approved':'badge-rejected'}">${isAktif?'Aktif':'Nonaktif'}</span></td>
+          <td><button class="btn btn-sm ${isAktif?'btn-red':'btn-green'}" onclick="toggleAktifStaff('${s.id||s.nama}', ${!isAktif})">${isAktif?'Nonaktifkan':'Aktifkan'}</button></td>
+        </tr>`;
+      }).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+async function toggleAktifStaff(idOrNama, setAktif) {
+  const r = await api('toggleAktifStaff', { idStaff: idOrNama, aktif: setAktif });
+  if (r && r.ok) {
+    toast(setAktif ? 'Staff diaktifkan' : 'Staff dinonaktifkan', 'success');
+    const rs = await api('getAllStaff');
+    STATE.staff = rs || [];
+    renderMasterStaff();
+  } else {
+    toast(r?.pesan || 'Gagal mengubah status', 'error');
+  }
+}
+
+function renderMasterVendor() {
+  const el = document.getElementById('master-content');
+  el.innerHTML = `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="card-title" style="margin:0">Daftar Vendor</div>
+      <button class="btn btn-solid btn-sm" onclick="openModal('modal-tambah-vendor')">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg> Tambah Vendor
+      </button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Nama Vendor</th><th>Kontak</th><th>Alamat</th></tr></thead><tbody>
+      ${STATE.vendor.map(v => `<tr><td style="font-weight:500">${v.NamaVendor||'-'}</td><td>${v.Kontak||'-'}</td><td style="font-size:12px;color:var(--text2)">${v.Alamat||'-'}</td></tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+function renderMasterKategori() {
+  const el = document.getElementById('master-content');
+  el.innerHTML = `<div class="two-col">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="card-title" style="margin:0">Kategori</div>
+        <button class="btn btn-solid btn-sm" onclick="openModal('modal-tambah-kategori')">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg> Tambah
+        </button>
+      </div>
+      <table><thead><tr><th>ID</th><th>Nama Kategori</th></tr></thead><tbody>
+        ${STATE.kategori.length > 0 ? STATE.kategori.map(k => `<tr><td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${k.ID_Kategori}</td><td>${k.NamaKategori}</td></tr>`).join('') : '<tr><td colspan="2"><div class="empty"><p>Belum ada data</p></div></td></tr>'}
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="card-title" style="margin:0">Sub Kategori</div>
+        <button class="btn btn-solid btn-sm" onclick="openModal('modal-tambah-subkategori')">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg> Tambah
+        </button>
+      </div>
+      <table><thead><tr><th>Sub Kategori</th><th>Kategori</th></tr></thead><tbody>
+        ${(STATE.subkategori||[]).length > 0 ? STATE.subkategori.map(s => {
+          const kat = STATE.kategori.find(k => k.ID_Kategori === s.ID_Kategori);
+          return `<tr><td>${s.NamaSubKategori}</td><td style="font-size:12px;color:var(--text2)">${kat?.NamaKategori||'-'}</td></tr>`;
+        }).join('') : '<tr><td colspan="2"><div class="empty"><p>Belum ada data</p></div></td></tr>'}
+      </tbody></table>
+    </div>
+  </div>`;
+}
+
+// ── TAMBAH STAFF & VENDOR ─────────────────────────────────────
+async function submitTambahStaff() {
+  const nama   = document.getElementById('ns-nama').value.trim();
+  const wa     = document.getElementById('ns-wa').value.trim();
+  const divisi = document.getElementById('ns-divisi').value;
+  const role   = document.getElementById('ns-role').value;
+  const aktif  = document.getElementById('ns-aktif').value;
+  const pass   = document.getElementById('ns-pass').value;
+  if (!nama || !wa || !divisi || !pass) { toast('Lengkapi semua data', 'error'); return; }
+  const r = await api('tambahStaff', { namaStaff: nama, nomorWA: wa, idDivisi: divisi, role, password: pass, aktif: aktif !== '0' });
+  if (r && r.ok) {
+    toast('Staff berhasil ditambahkan!', 'success');
+    closeModal('modal-tambah-staff');
+    const rs = await api('getAllStaff');
+    STATE.staff = rs || [];
+    renderMasterStaff();
+  } else {
+    toast(r?.pesan || 'Gagal menyimpan', 'error');
+  }
+}
+
+async function submitTambahVendor() {
+  const nama   = document.getElementById('nv-nama').value.trim();
+  const kontak = document.getElementById('nv-kontak').value.trim();
+  const alamat = document.getElementById('nv-alamat').value.trim();
+  if (!nama) { toast('Nama vendor wajib diisi', 'error'); return; }
+  const r = await api('tambahVendor', { namaVendor: nama, kontak, alamat });
+  if (r && r.ok) {
+    toast('Vendor berhasil ditambahkan!', 'success');
+    closeModal('modal-tambah-vendor');
+    const rv = await api('getVendor');
+    STATE.vendor = rv || [];
+    renderMasterVendor();
+  } else {
+    toast(r?.pesan || 'Gagal menyimpan', 'error');
+  }
+}
+
+async function submitTambahKategori() {
+  const nama = document.getElementById('mk-nama').value.trim();
+  if (!nama) { toast('Nama kategori wajib diisi', 'error'); return; }
+  const r = await api('tambahKategori', { namaKategori: nama });
+  if (r && r.ok) {
+    toast('Kategori berhasil ditambahkan!', 'success');
+    closeModal('modal-tambah-kategori');
+    document.getElementById('mk-nama').value = '';
+    const rk = await api('getKategori');
+    STATE.kategori = rk || [];
+    renderMasterKategori();
+  } else {
+    toast(r?.pesan || 'Gagal menyimpan', 'error');
+  }
+}
+
+async function submitTambahSubKategori() {
+  const nama  = document.getElementById('msk-nama').value.trim();
+  const idKat = document.getElementById('msk-kat').value;
+  if (!nama || !idKat) { toast('Lengkapi semua data', 'error'); return; }
+  const r = await api('tambahSubKategori', { namaSubKategori: nama, idKategori: idKat });
+  if (r && r.ok) {
+    toast('Sub kategori berhasil ditambahkan!', 'success');
+    closeModal('modal-tambah-subkategori');
+    document.getElementById('msk-nama').value = '';
+    const rs = await api('getSubKategori', {});
+    STATE.subkategori = rs || [];
+    renderMasterKategori();
+  } else {
+    toast(r?.pesan || 'Gagal menyimpan', 'error');
+  }
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'modal-tambah-subkategori') {
+    populateSelect('msk-kat', STATE.kategori, 'ID_Kategori', 'NamaKategori', '— Pilih —');
+  }
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
