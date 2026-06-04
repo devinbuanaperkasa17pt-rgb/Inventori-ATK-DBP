@@ -541,21 +541,24 @@ tbody tr:hover { background: var(--surface2); }
     <div class="screen" id="screen-stok">
       <div class="page-header"><div class="page-title">Stok & Master Barang</div><div class="page-sub">Kelola data barang ATK</div></div>
       <div class="page-content">
+        <!-- Baris 1: Search + Filter -->
         <div class="filter-row">
           <div class="search-wrap" style="flex:1;max-width:280px">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input class="search-input" id="stok-search" placeholder="Cari nama barang..." oninput="renderStok()"/>
           </div>
           <select class="form-select" id="stok-filter-kat" onchange="renderStok()"><option value="">Semua kategori</option></select>
-          <button class="btn btn-solid btn-sm" id="btn-tambah-barang" onclick="openModalTambahBarang()">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Tambah Barang
-          </button>
-          <button class="btn btn-sm" onclick="openModal('modal-tambah-subkategori')">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Tambah Sub Kategori
-          </button>
-          <button class="btn btn-sm" onclick="openModal('modal-tambah-kategori')">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Tambah Kategori
-          </button>
+          <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm" id="btn-tambah-kat" onclick="openModal('modal-tambah-kategori')">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Kategori
+            </button>
+            <button class="btn btn-sm" id="btn-tambah-subkat" onclick="openModal('modal-tambah-subkategori')">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Sub Kategori
+            </button>
+            <button class="btn btn-solid btn-sm" id="btn-tambah-barang" onclick="openModalTambahBarang()">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Tambah Barang
+            </button>
+          </div>
         </div>
         <div class="card"><div class="table-wrap" id="stok-table"></div></div>
       </div>
@@ -1149,8 +1152,12 @@ async function showApp() {
 
 function buildNav() {
   const isAdmin = STATE.user.role === 'admin';
-  const btnTambahBarang = document.getElementById('btn-tambah-barang');
+  const btnTambahBarang  = document.getElementById('btn-tambah-barang');
+  const btnTambahKat     = document.getElementById('btn-tambah-kat');
+  const btnTambahSubkat  = document.getElementById('btn-tambah-subkat');
   if (btnTambahBarang) btnTambahBarang.style.display = isAdmin ? '' : 'none';
+  if (btnTambahKat)    btnTambahKat.style.display    = isAdmin ? '' : 'none';
+  if (btnTambahSubkat) btnTambahSubkat.style.display = isAdmin ? '' : 'none';
   const navItems = [
     { id: 'dashboard',   label: 'Dashboard',          icon: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z', show: true },
     { id: 'request',     label: 'Ajukan Permintaan',   icon: 'M12 5v14M5 12h14', show: true },
@@ -2098,9 +2105,6 @@ async function submitTambahSubKategori() {
     if (tbKat && tbKat.value === idKat) loadSubKatModal();
     // Refresh tampilan master kalau sedang di halaman master
     if (document.getElementById('screen-master')?.classList.contains('active')) renderMasterKategori();
-  } else {
-    toast(r?.pesan || 'Gagal menyimpan', 'error');
-  }
   } else {
     toast(r?.pesan || 'Gagal menyimpan', 'error');
   }
