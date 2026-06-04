@@ -550,6 +550,12 @@ tbody tr:hover { background: var(--surface2); }
           <button class="btn btn-solid btn-sm" id="btn-tambah-barang" onclick="openModalTambahBarang()">
             <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Tambah Barang
           </button>
+          <button class="btn btn-sm" onclick="openModal('modal-tambah-subkategori')">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Tambah Sub Kategori
+          </button>
+          <button class="btn btn-sm" onclick="openModal('modal-tambah-kategori')">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Tambah Kategori
+          </button>
         </div>
         <div class="card"><div class="table-wrap" id="stok-table"></div></div>
       </div>
@@ -2061,7 +2067,16 @@ async function submitTambahKategori() {
     document.getElementById('mk-nama').value = '';
     const rk = await api('getKategori');
     STATE.kategori = rk || [];
-    renderMasterKategori();
+    // Refresh dropdown filter di halaman Stok
+    const sc = document.getElementById('stok-filter-kat');
+    if (sc) {
+      sc.innerHTML = '<option value="">Semua kategori</option>';
+      STATE.kategori.forEach(k => sc.innerHTML += `<option value="${k.ID_Kategori}">${k.NamaKategori}</option>`);
+    }
+    // Refresh dropdown di modal tambah barang
+    populateSelect('tb-kat', STATE.kategori, 'ID_Kategori', 'NamaKategori', '— Pilih —');
+    // Refresh tampilan master kalau sedang di halaman master
+    if (document.getElementById('screen-master')?.classList.contains('active')) renderMasterKategori();
   } else {
     toast(r?.pesan || 'Gagal menyimpan', 'error');
   }
@@ -2078,7 +2093,14 @@ async function submitTambahSubKategori() {
     document.getElementById('msk-nama').value = '';
     const rs = await api('getSubKategori', {});
     STATE.subkategori = rs || [];
-    renderMasterKategori();
+    // Refresh sub kategori di modal tambah barang jika kategori yang sama sedang dipilih
+    const tbKat = document.getElementById('tb-kat');
+    if (tbKat && tbKat.value === idKat) loadSubKatModal();
+    // Refresh tampilan master kalau sedang di halaman master
+    if (document.getElementById('screen-master')?.classList.contains('active')) renderMasterKategori();
+  } else {
+    toast(r?.pesan || 'Gagal menyimpan', 'error');
+  }
   } else {
     toast(r?.pesan || 'Gagal menyimpan', 'error');
   }
