@@ -652,10 +652,6 @@ tbody tr:hover { background: var(--surface2); }
         <input class="form-input" type="number" id="tb-min" placeholder="5"/>
       </div>
     </div>
-    <div class="form-row">
-      <label class="form-label">Harga satuan (Rp)</label>
-      <input class="form-input" type="number" id="tb-harga" placeholder="0"/>
-    </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-tambah-barang')">Batal</button>
       <button class="btn btn-solid" onclick="submitTambahBarang()">Simpan</button>
@@ -1758,7 +1754,7 @@ function renderStok() {
   if (kat) data = data.filter(b => b.ID_Kategori === kat);
   const el = document.getElementById('stok-table');
   if (data.length === 0) { el.innerHTML = '<div class="empty"><p>Tidak ada data</p></div>'; return; }
-  el.innerHTML = `<table><thead><tr><th>Nama Barang</th><th>Kategori</th><th>Satuan</th><th>Stok</th><th>Min</th><th>Harga Satuan</th><th>Status Stok</th></tr></thead><tbody>
+  el.innerHTML = `<table><thead><tr><th>Nama Barang</th><th>Kategori</th><th>Satuan</th><th>Stok</th><th>Min</th><th>Status Stok</th></tr></thead><tbody>
     ${data.map(b => {
       const stok = Number(b.StokSaatIni || 0);
       const min  = Number(b.StokMinimum || 0);
@@ -1774,7 +1770,6 @@ function renderStok() {
         <td>${b.Satuan}</td>
         <td style="font-family:var(--mono);font-weight:600">${stok}</td>
         <td style="font-family:var(--mono);color:var(--text3)">${min}</td>
-        <td style="font-family:var(--mono)">${fRp(b.HargaSatuan)}</td>
         <td>${stokBadge}</td>
       </tr>`;
     }).join('')}
@@ -1784,7 +1779,6 @@ function renderStok() {
 function openModalTambahBarang() {
   document.getElementById('tb-satuan').value = '';
   document.getElementById('tb-min').value = '';
-  document.getElementById('tb-harga').value = '';
   openModal('modal-tambah-barang');
 }
 
@@ -1793,13 +1787,12 @@ async function submitTambahBarang() {
   const idSubKat = document.getElementById('tb-subkat').value;
   const satuan   = document.getElementById('tb-satuan').value.trim();
   const min      = parseInt(document.getElementById('tb-min').value) || 5;
-  const harga    = parseInt(document.getElementById('tb-harga').value) || 0;
   if (!idKat || !idSubKat || !satuan) { toast('Lengkapi semua data', 'error'); return; }
   // Ambil nama barang otomatis dari nama sub kategori yang dipilih
   const subOpt = document.getElementById('tb-subkat');
   const nama = subOpt.options[subOpt.selectedIndex]?.text || '';
   if (!nama) { toast('Pilih sub kategori terlebih dahulu', 'error'); return; }
-  const r = await api('tambahBarang', { idKategori: idKat, idSubKategori: idSubKat, namaBarang: nama, satuan, stokMinimum: min, hargaSatuan: harga });
+  const r = await api('tambahBarang', { idKategori: idKat, idSubKategori: idSubKat, namaBarang: nama, satuan, stokMinimum: min });
   if (r && r.ok) {
     toast('Barang berhasil ditambahkan!', 'success');
     closeModal('modal-tambah-barang');
