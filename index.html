@@ -1845,6 +1845,9 @@ function switchMaster(tipe, btn) {
 
 function renderMasterStaff() {
   const el = document.getElementById('master-content');
+  const opsiDivisi = STATE.divisi.map(d =>
+    `<option value="${d.ID_Divisi}">${d.NamaDivisi}</option>`
+  ).join('');
   el.innerHTML = `<div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div class="card-title" style="margin:0">Daftar Staff</div>
@@ -1852,26 +1855,58 @@ function renderMasterStaff() {
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg> Tambah Staff
       </button>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Divisi</th><th>Role</th><th>No. WA</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+    <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Divisi</th><th>Role</th><th>No. WA</th><th>Status</th></tr></thead><tbody>
       ${STATE.staff.map(s => {
-        const div = STATE.divisi.find(d => d.ID_Divisi === s.divisi);
         const isAktif = s.aktif !== false && s.aktif !== 0 && s.aktif !== '0';
+        const idStaff = (s.id || s.nama).replace(/'/g,"\\'");
         return `<tr>
           <td><div style="display:flex;align-items:center;gap:8px">
             <div style="width:26px;height:26px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent-text)">${initials(s.nama)}</div>
             ${s.nama}</div></td>
-          <td>${div?.NamaDivisi||'-'}</td>
+          <td>
+            <select class="form-select" style="min-width:140px;font-size:12px" onchange="updateDivisiStaff('${idStaff}', this.value)">
+              ${STATE.divisi.map(d => `<option value="${d.ID_Divisi}" ${d.ID_Divisi===s.divisi?'selected':''}>${d.NamaDivisi}</option>`).join('')}
+            </select>
+          </td>
           <td><span class="badge ${s.role==='admin'?'badge-admin':'badge-staff'}">${s.role}</span></td>
           <td style="font-family:var(--mono);font-size:12px">${s.nomorWA||'-'}</td>
-          <td><span class="badge ${isAktif?'badge-approved':'badge-rejected'}">${isAktif?'Aktif':'Nonaktif'}</span></td>
-          <td><button class="btn btn-sm ${isAktif?'btn-red':'btn-green'}" onclick="toggleAktifStaff('${s.id||s.nama}', ${!isAktif})">${isAktif?'Nonaktifkan':'Aktifkan'}</button></td>
+          <td>
+            <select class="form-select" style="width:110px;font-size:12px;
+              ${isAktif ? 'background:var(--accent-bg);color:var(--accent-text);border-color:#A7D7BF' : 'background:var(--red-bg);color:var(--red);border-color:#FECACA'}"
+              onchange="toggleAktifStaff('${idStaff}', this.value==='1', this)">
+              <option value="1" ${isAktif?'selected':''}>Aktif</option>
+              <option value="0" ${!isAktif?'selected':''}>Nonaktif</option>
+            </select>
+          </td>
         </tr>`;
       }).join('')}
     </tbody></table></div>
   </div>`;
 }
 
-async function toggleAktifStaff(idOrNama, setAktif) {
+async function updateDivisiStaff(idOrNama, idDivisi) {
+  const r = await api('updateDivisiStaff', { idStaff: idOrNama, idDivisi });
+  if (r && r.ok) {
+    toast('Divisi berhasil diperbarui', 'success');
+    const rs = await api('getAllStaff');
+    STATE.staff = rs || [];
+    renderMasterStaff();
+  } else {
+    // Simpan perubahan di STATE lokal walau API belum support
+    const s = STATE.staff.find(x => (x.id||x.nama) === idOrNama);
+    if (s) s.divisi = idDivisi;
+    toast('Divisi diperbarui (lokal)', 'warning');
+  }
+}
+
+async function toggleAktifStaff(idOrNama, setAktif, selEl) {
+  // Update visual dropdown langsung
+  if (selEl) {
+    const aktif = setAktif;
+    selEl.style.background = aktif ? 'var(--accent-bg)' : 'var(--red-bg)';
+    selEl.style.color = aktif ? 'var(--accent-text)' : 'var(--red)';
+    selEl.style.borderColor = aktif ? '#A7D7BF' : '#FECACA';
+  }
   const r = await api('toggleAktifStaff', { idStaff: idOrNama, aktif: setAktif });
   if (r && r.ok) {
     toast(setAktif ? 'Staff diaktifkan' : 'Staff dinonaktifkan', 'success');
@@ -1880,6 +1915,14 @@ async function toggleAktifStaff(idOrNama, setAktif) {
     renderMasterStaff();
   } else {
     toast(r?.pesan || 'Gagal mengubah status', 'error');
+    // Kembalikan visual jika gagal
+    if (selEl) {
+      const semula = !setAktif;
+      selEl.style.background = semula ? 'var(--accent-bg)' : 'var(--red-bg)';
+      selEl.style.color = semula ? 'var(--accent-text)' : 'var(--red)';
+      selEl.style.borderColor = semula ? '#A7D7BF' : '#FECACA';
+      selEl.value = semula ? '1' : '0';
+    }
   }
 }
 
