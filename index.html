@@ -344,23 +344,90 @@ tbody tr:hover { background: var(--surface2); }
   <div class="main">
     <!-- DASHBOARD -->
     <div class="screen" id="screen-dashboard">
-      <div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">Ringkasan inventori bulan ini</div></div>
-      <div class="page-content">
-        <div class="metrics-grid" id="dash-metrics"></div>
-        <div class="two-col" style="margin-bottom:14px">
-          <div class="card">
-            <div class="card-title"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Penggunaan per divisi</div>
-            <div class="chart-container" id="dash-chart"></div>
+      <!-- DASHBOARD HEADER DARK -->
+      <div id="dash-header" style="background:linear-gradient(135deg,#0f2027 0%,#1a3a4a 60%,#0d3d2e 100%);padding:18px 24px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:7px">
+            <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:#4ade80;stroke-width:2;stroke-linecap:round"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
           </div>
-          <div class="card">
-            <div class="card-title"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>Stok hampir habis</div>
-            <div id="dash-stok"></div>
+          <div>
+            <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:0.01em">INVENTORY <span style="color:#4ade80">dashboard</span></div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:1px">Sistem Manajemen ATK · PT Devin Buana Perkasa</div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-title"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Permintaan terbaru</div>
-          <div class="table-wrap" id="dash-tabel"></div>
+        <!-- PERIOD FILTER -->
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 12px">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:rgba(255,255,255,0.6);stroke-width:2;stroke-linecap:round;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span style="font-size:11px;color:rgba(255,255,255,0.5);white-space:nowrap">Dari</span>
+            <input type="date" id="dash-tgl-awal" style="background:transparent;border:none;outline:none;color:#fff;font-size:12px;font-family:var(--font);width:130px;cursor:pointer" onchange="loadDashboard()"/>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 12px">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:rgba(255,255,255,0.6);stroke-width:2;stroke-linecap:round;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span style="font-size:11px;color:rgba(255,255,255,0.5);white-space:nowrap">Sampai</span>
+            <input type="date" id="dash-tgl-akhir" style="background:transparent;border:none;outline:none;color:#fff;font-size:12px;font-family:var(--font);width:130px;cursor:pointer" onchange="loadDashboard()"/>
+          </div>
+          <button onclick="resetDashPeriod()" style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)">
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;display:inline;vertical-align:middle;margin-right:3px"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+            Reset
+          </button>
         </div>
+      </div>
+
+      <div class="page-content" style="padding-top:14px">
+
+        <!-- KPI METRIC CARDS -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px" id="dash-metrics"></div>
+
+        <!-- ROW 2: Charts -->
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:14px">
+          <!-- Trend Chart -->
+          <div class="card" style="padding:16px 18px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+              <div class="card-title" style="margin:0">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                Barang Keluar per Bulan
+              </div>
+              <span style="font-size:11px;color:var(--text3)" id="dash-chart-label">12 bulan terakhir</span>
+            </div>
+            <div style="position:relative;height:130px" id="dash-area-chart"></div>
+          </div>
+          <!-- Stok hampir habis -->
+          <div class="card" style="padding:16px 18px">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:#F59E0B;stroke-width:2;stroke-linecap:round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Stok Hampir Habis
+            </div>
+            <div id="dash-stok" style="max-height:160px;overflow-y:auto"></div>
+          </div>
+        </div>
+
+        <!-- ROW 3: Top Items & Recent Table -->
+        <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:12px">
+          <!-- Top 10 items -->
+          <div class="card" style="padding:16px 18px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div class="card-title" style="margin:0">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Top 10 Barang Keluar
+              </div>
+              <div id="dash-top-toggle" style="display:flex;background:var(--surface2);border-radius:6px;padding:2px;gap:2px">
+                <button onclick="setTopView('qty',this)" id="btn-top-qty" style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#fff;font-family:var(--font)">Qty</button>
+                <button onclick="setTopView('nilai',this)" id="btn-top-nilai" style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:transparent;color:var(--text2);font-family:var(--font)">Nilai</button>
+              </div>
+            </div>
+            <div id="dash-top-items"></div>
+          </div>
+          <!-- Permintaan terbaru -->
+          <div class="card" style="padding:16px 18px">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+              Permintaan Terbaru
+            </div>
+            <div class="table-wrap" id="dash-tabel"></div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1072,6 +1139,7 @@ async function showApp() {
   buildNav();
   await loadMasterData();
   showScreen('dashboard');
+  initDashPeriod();
   loadDashboard();
 }
 
@@ -1098,7 +1166,7 @@ function buildNav() {
     btn.onclick = () => {
       showScreen(n.id);
       if (n.id==='admin-req')    loadAdminReq();
-      if (n.id==='dashboard')    loadDashboard();
+      if (n.id==='dashboard')    { if (!document.getElementById('dash-tgl-awal')?.value) initDashPeriod(); loadDashboard(); }
       if (n.id==='stok')         renderStok();
       if (n.id==='laporan')      initLaporan();
       if (n.id==='master')       loadMaster();
@@ -1259,40 +1327,136 @@ async function loadSubKatModal() {
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────
+let DASH_TOP_VIEW = 'qty';
+
+function setTopView(mode, btn) {
+  DASH_TOP_VIEW = mode;
+  document.getElementById('btn-top-qty').style.background = mode==='qty' ? 'var(--accent)' : 'transparent';
+  document.getElementById('btn-top-qty').style.color = mode==='qty' ? '#fff' : 'var(--text2)';
+  document.getElementById('btn-top-nilai').style.background = mode==='nilai' ? 'var(--accent)' : 'transparent';
+  document.getElementById('btn-top-nilai').style.color = mode==='nilai' ? '#fff' : 'var(--text2)';
+  renderTopItems(window._DASH_TOP_DATA || []);
+}
+
+function initDashPeriod() {
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  document.getElementById('dash-tgl-awal').value = firstDay.toISOString().split('T')[0];
+  document.getElementById('dash-tgl-akhir').value = now.toISOString().split('T')[0];
+}
+
+function resetDashPeriod() {
+  initDashPeriod();
+  loadDashboard();
+}
+
+function getDashPeriod() {
+  const a = document.getElementById('dash-tgl-awal')?.value;
+  const b = document.getElementById('dash-tgl-akhir')?.value;
+  return { tglAwal: a || undefined, tglAkhir: b || undefined };
+}
+
+function renderTopItems(data) {
+  const el = document.getElementById('dash-top-items');
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty"><p>Belum ada data</p></div>'; return; }
+  const top = data.slice(0,10);
+  const useNilai = DASH_TOP_VIEW === 'nilai';
+  const maxV = Math.max(...top.map(d => useNilai ? (d.totalNilai||0) : (d.qty||0)), 1);
+  const colors = ['#4ade80','#34d399','#6ee7b7','#a7f3d0','#22d3ee','#38bdf8','#818cf8','#c084fc','#fb923c','#f87171'];
+  el.innerHTML = top.map((d,i) => {
+    const val = useNilai ? (d.totalNilai||0) : (d.qty||0);
+    const pct = Math.round((val/maxV)*100);
+    const label = useNilai ? fRp(val) : val;
+    return `<div style="margin-bottom:7px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+        <span style="color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:65%">${d.nama||'-'}</span>
+        <span style="font-family:var(--mono);color:var(--text2);flex-shrink:0">${label}</span>
+      </div>
+      <div style="height:6px;background:var(--surface2);border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${colors[i%colors.length]};border-radius:99px;transition:width 0.4s"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAreaChart(data) {
+  const el = document.getElementById('dash-area-chart');
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty"><p>Belum ada data</p></div>'; return; }
+  const max = Math.max(...data.map(d=>d.total||0), 1);
+  const w = 100 / data.length;
+  const H = 110;
+  const pts = data.map((d,i) => {
+    const x = (i / (data.length-1||1)) * 100;
+    const y = H - Math.round(((d.total||0)/max)*(H-20)) - 5;
+    return `${x},${y}`;
+  }).join(' ');
+  const fillPts = `0,${H} ${pts} 100,${H}`;
+  el.innerHTML = `<svg viewBox="0 0 100 ${H}" preserveAspectRatio="none" style="width:100%;height:100%">
+    <defs>
+      <linearGradient id="ag" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#4ade80" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#4ade80" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+    <polygon points="${fillPts}" fill="url(#ag)"/>
+    <polyline points="${pts}" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${data.map((d,i) => {
+      const x = (i/(data.length-1||1))*100;
+      const y = H - Math.round(((d.total||0)/max)*(H-20)) - 5;
+      return `<circle cx="${x}" cy="${y}" r="1.5" fill="#4ade80"/>`;
+    }).join('')}
+  </svg>
+  <div style="display:flex;justify-content:space-between;margin-top:4px">
+    ${data.map(d=>`<span style="font-size:9px;color:var(--text3);flex:1;text-align:center">${d.label||''}</span>`).join('')}
+  </div>`;
+}
+
 async function loadDashboard() {
-  const r = await api('getDashboard');
+  // Init period if not set
+  if (!document.getElementById('dash-tgl-awal')?.value) initDashPeriod();
+
+  const { tglAwal, tglAkhir } = getDashPeriod();
+  const r = await api('getDashboard', { tglAwal, tglAkhir });
   if (!r) return;
 
+  // Update period label
+  const lbl = document.getElementById('dash-chart-label');
+  if (lbl && tglAwal && tglAkhir) lbl.textContent = `${fTgl(tglAwal)} – ${fTgl(tglAkhir)}`;
+
+  // ── METRIC CARDS (referensi style) ──
   const m = document.getElementById('dash-metrics');
-  m.innerHTML = `
-    <div class="metric-card"><div class="metric-label">Total Item</div><div class="metric-value">${r.totalItem||0}</div><div class="metric-sub">jenis barang aktif</div></div>
-    <div class="metric-card"><div class="metric-label">Pending</div><div class="metric-value" style="color:var(--amber)">${r.pending||0}</div><div class="metric-sub">menunggu approval</div></div>
-    <div class="metric-card"><div class="metric-label">Barang Masuk</div><div class="metric-value" style="color:var(--accent)">${r.masukBulanIni||0}</div><div class="metric-sub">bulan ini</div></div>
-    <div class="metric-card"><div class="metric-label">Barang Keluar</div><div class="metric-value" style="color:var(--blue)">${r.keluarBulanIni||0}</div><div class="metric-sub">bulan ini</div></div>
-  `;
+  const metrics = [
+    { label:'Total Jenis Barang', value: r.totalItem||0, sub:'item aktif', color:'#4ade80', bg:'linear-gradient(135deg,#064e3b,#065f46)', icon:'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z' },
+    { label:'Pending Approval', value: r.pending||0, sub:'menunggu proses', color:'#fbbf24', bg:'linear-gradient(135deg,#78350f,#92400e)', icon:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 12h6M9 16h6' },
+    { label:'Barang Masuk', value: r.masukBulanIni||0, sub:'periode ini', color:'#38bdf8', bg:'linear-gradient(135deg,#0c4a6e,#075985)', icon:'M12 5v14M5 12l7 7 7-7' },
+    { label:'Barang Keluar', value: r.keluarBulanIni||0, sub:'periode ini', color:'#c084fc', bg:'linear-gradient(135deg,#3b0764,#4c1d95)', icon:'M12 19V5M5 12l7-7 7 7' },
+  ];
+  m.innerHTML = metrics.map(mc => `
+    <div style="background:${mc.bg};border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden">
+      <div style="position:absolute;right:14px;top:14px;opacity:0.2">
+        <svg viewBox="0 0 24 24" style="width:36px;height:36px;fill:none;stroke:${mc.color};stroke-width:1.5;stroke-linecap:round"><path d="${mc.icon}"/></svg>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">${mc.label}</div>
+      <div style="font-size:32px;font-weight:800;color:#fff;font-family:var(--mono);line-height:1">${mc.value.toLocaleString('id-ID')}</div>
+      <div style="font-size:11px;color:${mc.color};margin-top:6px;font-weight:600">● ${mc.sub}</div>
+    </div>
+  `).join('');
 
   const bp = document.getElementById('badge-pending');
   if (bp) bp.textContent = r.pending > 0 ? r.pending : '';
 
-  const perDiv = r.perDivisi || {};
-  const divKeys = Object.keys(perDiv);
-  const maxVal = Math.max(...divKeys.map(k => perDiv[k]), 1);
-  const colors = ['var(--accent)','#2196F3','#F59E0B','#EC4899','#8B5CF6','#14B8A6'];
-  const chart = document.getElementById('dash-chart');
-  if (divKeys.length === 0) {
-    chart.innerHTML = '<div class="empty"><p>Belum ada data bulan ini</p></div>';
-  } else {
-    chart.innerHTML = divKeys.map((k,i) => `
-      <div class="chart-bar-group">
-        <div class="chart-bar-val">${perDiv[k]}</div>
-        <div class="chart-bar" style="height:${Math.round((perDiv[k]/maxVal)*90)}px;background:${colors[i%colors.length]}"></div>
-        <div class="chart-bar-label">${k}</div>
-      </div>`).join('');
-  }
+  // ── AREA CHART ──
+  const trendData = r.trendBulanan || [];
+  renderAreaChart(trendData);
 
+  // ── TOP ITEMS ──
+  window._DASH_TOP_DATA = r.topBarang || [];
+  renderTopItems(window._DASH_TOP_DATA);
+
+  // ── STOK HAMPIR HABIS ──
   const stokEl = document.getElementById('dash-stok');
   if (!r.hampirHabis || r.hampirHabis.length === 0) {
-    stokEl.innerHTML = '<div class="empty"><p>Semua stok aman</p></div>';
+    stokEl.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><p>Semua stok aman</p></div>';
   } else {
     stokEl.innerHTML = r.hampirHabis.map(s => {
       const pct = Math.round((s.stok / Math.max(s.minimum * 2, 1)) * 100);
@@ -1305,6 +1469,7 @@ async function loadDashboard() {
     }).join('');
   }
 
+  // ── TABEL TERBARU ──
   const tabel = document.getElementById('dash-tabel');
   if (!r.terbaru || r.terbaru.length === 0) {
     tabel.innerHTML = '<div class="empty"><p>Belum ada permintaan</p></div>';
