@@ -481,46 +481,56 @@ tbody tr:hover { background: var(--surface2); }
     <div class="screen" id="screen-barang-masuk">
       <div class="page-header"><div class="page-title">Barang Masuk</div><div class="page-sub">Input pengadaan dari vendor</div></div>
       <div class="page-content">
-        <div class="two-col" style="align-items:start">
-          <div class="card" style="overflow-x:auto">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-              <div class="card-title" style="margin:0">Input Barang Masuk</div>
-              <div style="display:flex;gap:8px">
-                <button class="btn btn-sm" onclick="tambahBarisBM()">+ Tambah Baris</button>
-                <button class="btn-solid btn btn-sm" onclick="submitBarangMasuk()">
-                  <svg viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-                  Simpan Semua
-                </button>
-              </div>
+        <!-- Form Input Barang Masuk (full width) -->
+        <div class="card" style="overflow-x:auto;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div class="card-title" style="margin:0">Input Barang Masuk</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-sm" onclick="tambahBarisBM()">+ Tambah Baris</button>
+              <button class="btn-solid btn btn-sm" onclick="submitBarangMasuk()">
+                <svg viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                Simpan Semua
+              </button>
             </div>
-            <table id="bm-table-input" style="width:100%;border-collapse:collapse;font-size:13px">
-              <thead>
-                <tr style="background:var(--surface2)">
-                  <th style="padding:8px;text-align:left;white-space:nowrap">#</th>
-                  <th style="padding:8px;text-align:left;white-space:nowrap">Vendor</th>
-                  <th style="padding:8px;text-align:left;white-space:nowrap">Tgl Masuk</th>
-                  <th style="padding:8px;text-align:left;white-space:nowrap">Barang</th>
-                  <th style="padding:8px;text-align:left;white-space:nowrap">Jumlah</th>
-                  <th style="padding:8px;text-align:left;white-space:nowrap">Harga Satuan</th>
-                  <th style="padding:8px;text-align:left;white-space:nowrap">No. Faktur</th>
-                  <th style="padding:8px;text-align:left;white-space:nowrap">Total</th>
-                  <th style="padding:8px;text-align:left;white-space:nowrap"></th>
-                </tr>
-              </thead>
-              <tbody id="bm-rows"></tbody>
-            </table>
           </div>
-          <div class="card">
-            <div class="card-title">Riwayat barang masuk</div>
-            <div class="filter-row" style="margin-bottom:10px">
-              <select class="form-select" id="bm-filter-bulan" onchange="loadBarangMasuk()">
+          <table id="bm-table-input" style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:var(--surface2)">
+                <th style="padding:8px;text-align:left;white-space:nowrap">#</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Vendor</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Tgl Masuk</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Barang</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Merek</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Jumlah</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Harga Satuan</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">No. Faktur</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap">Total</th>
+                <th style="padding:8px;text-align:left;white-space:nowrap"></th>
+              </tr>
+            </thead>
+            <tbody id="bm-rows"></tbody>
+          </table>
+        </div>
+
+        <!-- Riwayat Barang Masuk (collapsible, compact) -->
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer;user-select:none" onclick="toggleRiwayatBM(this)">
+            <div style="display:flex;align-items:center;gap:8px">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              <span style="font-size:13px;font-weight:700;color:var(--text)">Riwayat Barang Masuk</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <select class="form-select" id="bm-filter-bulan" onchange="loadBarangMasuk();event.stopPropagation()" onclick="event.stopPropagation()" style="font-size:11px;padding:4px 24px 4px 8px;height:28px">
                 <option value="">Semua bulan</option>
                 <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
                 <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
                 <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
                 <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
               </select>
+              <svg id="bm-riwayat-chevron" viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:var(--text3);stroke-width:2;stroke-linecap:round;transition:transform 0.2s"><path d="M6 9l6 6 6-6"/></svg>
             </div>
+          </div>
+          <div id="bm-riwayat-body" style="display:none;border-top:1px solid var(--border);padding:12px 16px;max-height:320px;overflow-y:auto">
             <div class="table-wrap" id="bm-table"></div>
           </div>
         </div>
@@ -621,10 +631,7 @@ tbody tr:hover { background: var(--surface2); }
     <div class="form-row">
       <label class="form-label">Sub Kategori</label>
       <select class="form-select" id="tb-subkat"><option value="">— Pilih —</option></select>
-    </div>
-    <div class="form-row">
-      <label class="form-label">Nama Barang</label>
-      <input class="form-input" id="tb-nama" placeholder="cth: HVS A4 Putih 70gr"/>
+      <div class="form-hint">Nama barang akan mengikuti sub kategori yang dipilih</div>
     </div>
     <div class="form-grid">
       <div class="form-row">
@@ -1162,7 +1169,7 @@ function buildNav() {
       if (n.id==='laporan')      initLaporan();
       if (n.id==='master')       loadMaster();
       if (n.id==='request')      { initReqRows(); loadMyPermintaan(); }
-      if (n.id==='barang-masuk') { initBMRows(); loadBarangMasuk(); }
+      if (n.id==='barang-masuk') { initScreenBM(); }
     };
     nav.appendChild(btn);
   });
@@ -1624,6 +1631,23 @@ async function konfirmasiAmbil(id) {
 // ── BARANG MASUK ──────────────────────────────────────────────
 let bmRowCount = 0;
 
+async function initScreenBM() {
+  // Selalu refresh STATE.barang agar dropdown tidak kosong
+  const rB = await api('getBarang', {});
+  STATE.barang = rB || [];
+  initBMRows();
+  loadBarangMasuk();
+}
+
+function toggleRiwayatBM(header) {
+  const body = document.getElementById('bm-riwayat-body');
+  const chevron = document.getElementById('bm-riwayat-chevron');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+  if (!isOpen) loadBarangMasuk();
+}
+
 function tambahBarisBM() {
   if (bmRowCount >= 15) { toast('Maksimal 15 baris', 'error'); return; }
   bmRowCount++;
@@ -1639,6 +1663,7 @@ function tambahBarisBM() {
     <td style="padding:4px"><select class="form-select" id="bm-vendor-${i}" style="min-width:130px">${opsiVendor}</select></td>
     <td style="padding:4px"><input class="form-input" type="date" id="bm-tgl-${i}" style="width:140px"/></td>
     <td style="padding:4px"><select class="form-select" id="bm-barang-${i}" style="min-width:160px">${opsiBarang}</select></td>
+    <td style="padding:4px"><input class="form-input" id="bm-merek-${i}" placeholder="Merek/Brand" style="width:110px"/></td>
     <td style="padding:4px"><input class="form-input" type="number" id="bm-jumlah-${i}" min="1" placeholder="0" style="width:70px" oninput="hitungTotalRow(${i})"/></td>
     <td style="padding:4px"><input class="form-input" type="number" id="bm-harga-${i}" min="0" placeholder="0" style="width:110px" oninput="hitungTotalRow(${i})"/></td>
     <td style="padding:4px"><input class="form-input" id="bm-faktur-${i}" placeholder="INV-001" style="width:100px"/></td>
@@ -1667,6 +1692,7 @@ async function submitBarangMasuk() {
     const i = row.id.replace('bm-row-', '');
     const idVendor = document.getElementById(`bm-vendor-${i}`)?.value;
     const idBarang = document.getElementById(`bm-barang-${i}`)?.value;
+    const merek    = document.getElementById(`bm-merek-${i}`)?.value.trim() || '-';
     const jumlah   = parseInt(document.getElementById(`bm-jumlah-${i}`)?.value);
     const harga    = parseInt(document.getElementById(`bm-harga-${i}`)?.value);
     const tgl      = document.getElementById(`bm-tgl-${i}`)?.value;
@@ -1676,7 +1702,7 @@ async function submitBarangMasuk() {
     const barangObj = STATE.barang.find(b => b.ID_Barang === idBarang) || {};
     const r = await api('inputBarangMasuk', {
       tglMasuk: tgl, idBarang, idVendor, jumlah, hargaSatuan: harga,
-      noFaktur: faktur, namaBarang: barangObj.NamaBarang || '-',
+      noFaktur: faktur, Merek: merek, namaBarang: barangObj.NamaBarang || '-',
       namaVendor: vendorObj.NamaVendor || '-',
     });
     if (r && r.ok) sukses++; else gagal++;
@@ -1697,9 +1723,11 @@ async function loadBarangMasuk() {
   const r = await api('getBarangMasuk', { bulan: bulan || undefined });
   const el = document.getElementById('bm-table');
   if (!r || r.length === 0) { el.innerHTML = '<div class="empty"><p>Belum ada data</p></div>'; return; }
-  el.innerHTML = `<table><thead><tr><th>Tanggal</th><th>Barang</th><th>Vendor</th><th>Qty</th><th>Harga Satuan</th><th>Total</th><th>No. Faktur</th></tr></thead><tbody>
+  el.innerHTML = `<table><thead><tr><th>Tanggal</th><th>Barang</th><th>Merek</th><th>Vendor</th><th>Qty</th><th>Harga Satuan</th><th>Total</th><th>No. Faktur</th></tr></thead><tbody>
     ${r.map(b => `<tr>
-      <td>${fTgl(b.TglMasuk)}</td><td>${b.NamaBarang||'-'}</td><td>${b.NamaVendor||'-'}</td>
+      <td>${fTgl(b.TglMasuk)}</td><td>${b.NamaBarang||'-'}</td>
+      <td style="font-size:12px;color:var(--text2)">${b.Merek||'-'}</td>
+      <td>${b.NamaVendor||'-'}</td>
       <td style="font-family:var(--mono)">${b.Jumlah}</td>
       <td style="font-family:var(--mono)">${fRp(b.HargaSatuan)}</td>
       <td style="font-family:var(--mono);font-weight:600">${fRp(b.TotalHarga)}</td>
@@ -1741,7 +1769,6 @@ function renderStok() {
 }
 
 function openModalTambahBarang() {
-  document.getElementById('tb-nama').value = '';
   document.getElementById('tb-satuan').value = '';
   document.getElementById('tb-min').value = '';
   document.getElementById('tb-harga').value = '';
@@ -1751,11 +1778,14 @@ function openModalTambahBarang() {
 async function submitTambahBarang() {
   const idKat    = document.getElementById('tb-kat').value;
   const idSubKat = document.getElementById('tb-subkat').value;
-  const nama     = document.getElementById('tb-nama').value.trim();
   const satuan   = document.getElementById('tb-satuan').value.trim();
   const min      = parseInt(document.getElementById('tb-min').value) || 5;
   const harga    = parseInt(document.getElementById('tb-harga').value) || 0;
-  if (!idKat || !idSubKat || !nama || !satuan) { toast('Lengkapi semua data', 'error'); return; }
+  if (!idKat || !idSubKat || !satuan) { toast('Lengkapi semua data', 'error'); return; }
+  // Ambil nama barang otomatis dari nama sub kategori yang dipilih
+  const subOpt = document.getElementById('tb-subkat');
+  const nama = subOpt.options[subOpt.selectedIndex]?.text || '';
+  if (!nama) { toast('Pilih sub kategori terlebih dahulu', 'error'); return; }
   const r = await api('tambahBarang', { idKategori: idKat, idSubKategori: idSubKat, namaBarang: nama, satuan, stokMinimum: min, hargaSatuan: harga });
   if (r && r.ok) {
     toast('Barang berhasil ditambahkan!', 'success');
