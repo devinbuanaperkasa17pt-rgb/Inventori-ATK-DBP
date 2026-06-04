@@ -262,13 +262,7 @@ tbody tr:hover { background: var(--surface2); }
           <button class="btn btn-sm btn-red" id="btn-stop-scan" onclick="stopBarcodeScanner()" style="display:none">Hentikan</button>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <div style="flex:1;height:1px;background:var(--border)"></div>
-        <span style="font-size:11px;color:var(--text3)">atau input manual barcode</span>
-        <div style="flex:1;height:1px;background:var(--border)"></div>
-      </div>
-      <input class="form-input" id="inp-barcode-manual" placeholder="Ketik / tempel kode barcode lalu Enter..." onkeydown="if(event.key==='Enter')doLoginBarcode(this.value.trim())"/>
-      <div class="form-hint" style="margin-top:6px">Staff → langsung masuk &nbsp;|&nbsp; Admin → perlu konfirmasi password</div>
+      <input class="form-input" id="inp-barcode-manual" placeholder="" onkeydown="if(event.key==='Enter')doLoginBarcode(this.value.trim())" style="display:none"/>
     </div>
 
     <!-- ── TAB MANUAL ── -->
@@ -702,15 +696,6 @@ tbody tr:hover { background: var(--surface2); }
 </div>
 
 <script>
-if (window.self !== window.top) {
-  document.addEventListener('DOMContentLoaded', function() {
-    // Tampilkan banner di atas halaman
-    var banner = document.createElement('div');
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#2D6A4F;color:#fff;text-align:center;padding:12px;font-size:14px;font-weight:600;z-index:99999';
-    banner.innerHTML = '⚠️ Kamera tidak bisa diakses di sini. <a href="' + window.location.href + '" target="_blank" style="color:#fff;text-decoration:underline">Buka di tab baru</a>';
-    document.body.appendChild(banner);
-  });
-}
 // ── CONFIG ──────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxGEWgp1yrObm_rsn6VOx-B636c3ICRuU0gGcw9zQ0lMJ9i-ZOroO_mIYLcZzE2ofVzFQ/exec';
 
