@@ -1839,6 +1839,8 @@ async function loadBarangMasuk() {
 // ── STOK ──────────────────────────────────────────────────────
 async function refreshStok(btn) {
   if (btn) { btn.disabled = true; btn.textContent = 'Memuat...'; }
+  // Sinkronisasi stok dari data aktual sheet
+  await api('sinkStok', {});
   const rb = await api('getBarang', {});
   STATE.barang = rb || [];
   renderStok();
@@ -1846,7 +1848,7 @@ async function refreshStok(btn) {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg> Refresh';
   }
-  toast('Data stok diperbarui', 'success');
+  toast('Stok berhasil disinkronisasi', 'success');
 }
 
 function renderStok() {
@@ -2045,15 +2047,15 @@ function renderMasterStaff() {
 async function jalankanSinkHarga() {
   const btn = document.getElementById('btn-sink-harga');
   if (btn) { btn.disabled = true; btn.textContent = 'Memproses...'; }
+  await api('sinkStok', {});
   const r = await api('sinkHargaMovingAverage', {});
   if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg> Sinkronisasi Harga'; }
   if (r && r.ok) {
-    toast(`Harga ${r.updated} barang berhasil disinkronisasi`, 'success');
-    // Refresh STATE.barang agar chart dashboard pakai harga terbaru
+    toast(`Stok & harga ${r.updated} barang berhasil disinkronisasi`, 'success');
     const rb = await api('getBarang', {});
     STATE.barang = rb || [];
   } else {
-    toast('Gagal sinkronisasi harga', 'error');
+    toast('Gagal sinkronisasi', 'error');
   }
 }
 
