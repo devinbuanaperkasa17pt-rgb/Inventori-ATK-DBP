@@ -588,6 +588,10 @@ tbody tr:hover { background: var(--surface2); }
             <option value="habis">Habis</option>
           </select>
           <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm" onclick="refreshStok(this)" title="Refresh data dari sheet">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+              Refresh
+            </button>
             <button class="btn btn-sm" id="btn-tambah-kat" onclick="openModal('modal-tambah-kategori')">
               <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Kategori
             </button>
@@ -1833,6 +1837,18 @@ async function loadBarangMasuk() {
 }
 
 // ── STOK ──────────────────────────────────────────────────────
+async function refreshStok(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Memuat...'; }
+  const rb = await api('getBarang', {});
+  STATE.barang = rb || [];
+  renderStok();
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg> Refresh';
+  }
+  toast('Data stok diperbarui', 'success');
+}
+
 function renderStok() {
   const q      = (document.getElementById('stok-search')?.value || '').toLowerCase();
   const kat    = document.getElementById('stok-filter-kat')?.value || '';
